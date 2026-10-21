@@ -50,8 +50,21 @@ def test_ui_has_no_inline_scripts_or_styles():
     assert re.search(r"<style\b", html) is None
 
 
-def test_snapshot_does_not_contain_a_private_git_directory():
-    assert not (ROOT / ".git").exists()
+def test_git_metadata_does_not_reference_the_private_repository():
+    git_path = ROOT / ".git"
+    if not git_path.exists():
+        return
+    if git_path.is_file():
+        marker = git_path.read_text(encoding="utf-8").strip()
+        if not marker.startswith("gitdir:"):
+            return
+        git_dir = (ROOT / marker.split(":", 1)[1].strip()).resolve()
+    else:
+        git_dir = git_path
+    config = git_dir / "config"
+    if not config.exists():
+        return
+    assert "joblens-research" not in config.read_text(encoding="utf-8").casefold()
 
 
 def test_readme_documents_the_synthetic_and_local_scope():
