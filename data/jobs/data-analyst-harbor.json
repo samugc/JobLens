@@ -1,0 +1,8 @@
+{
+  "id": "data-analyst-harbor",
+  "synthetic": true,
+  "title": "Data Analyst",
+  "company": "Harbor Finance (fictional)",
+  "location": "Madrid, Spain · Hybrid",
+  "description": "About the role\nAnalyse customer and transaction data, build reproducible analyses and explain findings to non-technical stakeholders.\n\nWe use Azure for internal reporting.\n\nRequirements:\n- Python\n- SQL\n- pandas\n- statistics\n- 2+ years of experience in a data role\n\nPreferred:\n- Machine learning\n- Forecasting\n- Docker\n\nWe require a bachelor's degree and the right to work in Spain.\n"
+}

@@ -1,0 +1,8 @@
+{
+  "id": "junior-ai-engineer-aster",
+  "synthetic": true,
+  "title": "Junior AI Engineer",
+  "company": "Aster Studio (fictional)",
+  "location": "Madrid, Spain · Hybrid",
+  "description": "About the role\nBuild local AI features for document-heavy workflows. You will work with Python, LLMs and retrieval-augmented generation, evaluate retrieval quality and present evidence to reviewers.\n\nWe use AWS for internal tooling.\n\nRequirements:\n- Python\n- LLM\n- RAG\n- NLP\n- Statistics\n- 1+ years of experience with Python\n\nPreferred:\n- Docker\n- PyTorch\n- Experience with agent frameworks\n\nWe require a master's degree and the right to work in Spain. Production experience is a plus.\n"
+}

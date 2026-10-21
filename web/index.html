@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="JobLens public demo: evidence-first job analysis with a local Python evaluator and synthetic data.">
+  <title>JobLens · Evidence-first job analysis</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#results">Skip to the report</a>
+  <div class="page-shell">
+    <header class="masthead">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">JL</span>
+        <span class="brand-copy">
+          <strong>JobLens</strong>
+          <small>Public demo</small>
+        </span>
+      </a>
+      <div class="masthead-meta">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span>Local Python evaluator</span>
+        <span class="meta-separator" aria-hidden="true">·</span>
+        <span>Synthetic data only</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">Evidence-first job analysis</p>
+        <h1 id="hero-title">See what the posting asks for.<br><em>See what the evidence supports.</em></h1>
+        <p class="hero-copy">
+          Compare a job posting with a fictional, attested evidence bank. JobLens separates
+          documented skills from partial signals, gaps and conditions that need a human decision.
+        </p>
+        <div class="hero-tags" aria-label="Demo properties">
+          <span class="tag">No hiring probability</span>
+          <span class="tag">Runs on 127.0.0.1</span>
+          <span class="tag">Nothing is uploaded</span>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="JobLens demo">
+        <aside class="controls">
+          <section class="panel" aria-labelledby="candidate-heading">
+            <div class="panel-heading">
+              <span class="step">01</span>
+              <h2 id="candidate-heading">Choose the evidence</h2>
+            </div>
+            <label class="field-label" for="candidate">Fictional candidate</label>
+            <select id="candidate" class="select" aria-describedby="candidate-note"></select>
+            <p id="candidate-note" class="field-note"></p>
+
+            <label class="field-label" for="example">Synthetic posting</label>
+            <select id="example" class="select"></select>
+            <button id="load-example" class="button button-secondary" type="button">Load posting</button>
+          </section>
+
+          <form id="job-form" class="panel" aria-labelledby="posting-heading">
+            <div class="panel-heading">
+              <span class="step">02</span>
+              <h2 id="posting-heading">Inspect the posting</h2>
+            </div>
+            <div class="field-grid">
+              <div>
+                <label class="field-label" for="title">Title</label>
+                <input id="title" class="input" type="text" autocomplete="off">
+              </div>
+              <div>
+                <label class="field-label" for="company">Company</label>
+                <input id="company" class="input" type="text" autocomplete="off">
+              </div>
+            </div>
+            <label class="field-label" for="location">Location</label>
+            <input id="location" class="input" type="text" autocomplete="off">
+            <label class="field-label" for="description">Job description</label>
+            <textarea id="description" class="textarea" rows="16" spellcheck="false"></textarea>
+            <button id="analyze" class="button button-primary" type="submit">Analyze evidence</button>
+            <p class="field-note field-note-tight">
+              The browser sends this text to the Python process on this machine only.
+              Nothing is uploaded, stored or submitted.
+            </p>
+          </form>
+        </aside>
+
+        <section id="results" class="results" aria-live="polite" aria-busy="false">
+          <div id="empty-state" class="empty-state">
+            <div class="empty-orbit" aria-hidden="true">
+              <span class="orbit-dot orbit-dot-a"></span>
+              <span class="orbit-dot orbit-dot-b"></span>
+              <span class="orbit-core">JL</span>
+            </div>
+            <h2>A report you can inspect, not a score to trust.</h2>
+            <p>
+              Choose a candidate and a posting, then run the local evaluator. Every extracted
+              requirement is shown with the source claim, reference or gap behind it.
+            </p>
+            <div class="legend-grid">
+              <article class="legend-card">
+                <span class="status-pill status-documented"><span class="status-dot"></span>Documented</span>
+                <h3>Explicit claim</h3>
+                <p>A source-backed statement in the fictional bank names the skill.</p>
+              </article>
+              <article class="legend-card">
+                <span class="status-pill status-partial"><span class="status-dot"></span>Partial</span>
+                <h3>Tag only</h3>
+                <p>The skill appears as metadata, but the claim does not demonstrate it.</p>
+              </article>
+              <article class="legend-card">
+                <span class="status-pill status-gap"><span class="status-dot"></span>Not documented</span>
+                <h3>Evidence gap</h3>
+                <p>No matching claim was found. That is not proof the ability is missing.</p>
+              </article>
+            </div>
+          </div>
+
+          <div id="error-state" class="error-state" hidden>
+            <p class="eyebrow">Something went wrong</p>
+            <h2>The report could not be generated.</h2>
+            <p id="error-message"></p>
+            <p class="field-note">Check that the local demo is still running, then try again.</p>
+          </div>
+
+          <div id="report" hidden>
+            <header class="report-head">
+              <div>
+                <p class="eyebrow">Evidence report</p>
+                <h2 id="report-title"></h2>
+                <p id="report-company" class="report-subtitle"></p>
+              </div>
+              <div class="report-badges">
+                <span id="fit-badge" class="badge badge-neutral"></span>
+                <span class="badge badge-python">Python evaluator</span>
+                <span class="badge badge-synthetic">Synthetic data</span>
+              </div>
+            </header>
+
+            <div class="candidate-strip">
+              <span id="candidate-initials" class="avatar" aria-hidden="true"></span>
+              <div class="candidate-copy">
+                <strong id="report-candidate"></strong>
+                <span id="report-headline"></span>
+              </div>
+              <span class="candidate-label">Fictional candidate</span>
+            </div>
+
+            <div class="summary-grid" aria-label="Report summary">
+              <article class="summary-card">
+                <span class="summary-label">Required coverage</span>
+                <strong id="required-tally">0/0</strong>
+                <progress id="required-progress" max="1" value="0" aria-label="Required skill coverage"></progress>
+                <span id="required-note" class="summary-note"></span>
+              </article>
+              <article class="summary-card">
+                <span class="summary-label">Preferred coverage</span>
+                <strong id="preferred-tally">0/0</strong>
+                <progress id="preferred-progress" max="1" value="0" aria-label="Preferred skill coverage"></progress>
+                <span id="preferred-note" class="summary-note"></span>
+              </article>
+              <article class="summary-card summary-card-warn">
+                <span class="summary-label">Required gaps</span>
+                <strong id="gap-tally">0</strong>
+                <span id="gap-note" class="summary-note"></span>
+              </article>
+              <article class="summary-card summary-card-review">
+                <span class="summary-label">Manual review</span>
+                <strong id="review-tally">0</strong>
+                <span id="review-note" class="summary-note"></span>
+              </article>
+            </div>
+
+            <p class="method-note">
+              Coverage means documented evidence, not probability of hiring. A missing bank claim
+              is not proof of missing ability, and unextracted requirements still need review.
+            </p>
+
+            <section class="report-section" aria-labelledby="required-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Required</span>
+                  <h3 id="required-heading">What the posting marks as mandatory</h3>
+                </div>
+                <span id="required-count" class="count"></span>
+              </div>
+              <div id="required-list" class="skill-list"></div>
+            </section>
+
+            <section class="report-section" aria-labelledby="preferred-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Preferred</span>
+                  <h3 id="preferred-heading">What the posting treats as optional</h3>
+                </div>
+                <span id="preferred-count" class="count"></span>
+              </div>
+              <div id="preferred-list" class="skill-list"></div>
+            </section>
+
+            <section id="mentioned-section" class="report-section" aria-labelledby="mentioned-heading" hidden>
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Context</span>
+                  <h3 id="mentioned-heading">Mentioned, not counted as requirements</h3>
+                </div>
+                <span id="mentioned-count" class="count"></span>
+              </div>
+              <p class="section-note">
+                These tools appeared in the text without a clear requirement cue. They are shown
+                for context and left out of the coverage tally.
+              </p>
+              <div id="mentioned-list" class="skill-list"></div>
+            </section>
+
+            <section class="report-section" aria-labelledby="review-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Human review</span>
+                  <h3 id="review-heading">Conditions the evaluator will not decide</h3>
+                </div>
+                <span id="review-count" class="count"></span>
+              </div>
+              <p class="section-note">
+                Degree, authorization, production depth, location and years of experience are
+                review gates, not hidden scores.
+              </p>
+              <div id="review-list" class="review-list"></div>
+            </section>
+
+            <details class="limits">
+              <summary>Limitations and method</summary>
+              <div class="limits-body">
+                <p>
+                  This is a synthetic portfolio demo. It is not an ATS, a hiring predictor or a
+                  substitute for reading the posting. The evaluator uses a deliberately narrow
+                  skill vocabulary; anything it does not recognise remains for manual review.
+                </p>
+                <ul id="limits-list"></ul>
+                <p class="limits-footnote">
+                  The private project also contains an optional local Ollama tool-calling agent.
+                  It is not part of this public snapshot, and this demo makes no LangGraph claim.
+                </p>
+              </div>
+            </details>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>JobLens public demo · synthetic candidates and postings · local Python evaluator</p>
+      <p><a href="/api/status">Local status</a> · No analytics · No external requests</p>
+    </footer>
+  </div>
+  <noscript>
+    <p class="noscript">This demo needs JavaScript to call the local Python evaluator.</p>
+  </noscript>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

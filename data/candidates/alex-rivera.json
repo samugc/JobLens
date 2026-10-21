@@ -1,0 +1,103 @@
+{
+  "schema_version": 3,
+  "candidate": {
+    "id": "alex-rivera",
+    "name": "Alex Rivera",
+    "headline": "Early-career AI engineer · retrieval and evaluation",
+    "note": "Fictional candidate. Every claim below is synthetic and exists only for this demo."
+  },
+  "headline": {
+    "text": "Early-career AI engineer · retrieval and evaluation",
+    "source": "synthetic/alex/headline",
+    "attested_by_user": true
+  },
+  "facts": [
+    {
+      "kind": "profile",
+      "id": "alex-rag",
+      "text": "Built a local retrieval-augmented generation pipeline and evaluated LLM answers against cited sources.",
+      "tags": ["rag", "llm", "nlp", "retrieval", "python"],
+      "source": "synthetic/alex/project-rag",
+      "attested_by_user": true
+    },
+    {
+      "kind": "profile",
+      "id": "alex-eval",
+      "text": "Compared retrieval configurations on a small labelled question set and reported top-k evidence hits.",
+      "tags": ["statistics", "python", "retrieval"],
+      "source": "synthetic/alex/evaluation",
+      "attested_by_user": true
+    },
+    {
+      "kind": "profile",
+      "id": "alex-api",
+      "text": "Built and tested small Python services with documented interfaces.",
+      "tags": ["python", "testing", "backend"],
+      "source": "synthetic/alex/service",
+      "attested_by_user": true
+    },
+    {
+      "kind": "skill",
+      "id": "alex-skill-python",
+      "text": "Python",
+      "tags": ["python"],
+      "source": "synthetic/alex/skills",
+      "attested_by_user": true,
+      "label": "Programming"
+    },
+    {
+      "kind": "skill",
+      "id": "alex-skill-stats",
+      "text": "Statistics and mathematical optimization",
+      "tags": ["statistics", "optimization", "mathematics"],
+      "source": "synthetic/alex/skills",
+      "attested_by_user": true,
+      "label": "Mathematics"
+    },
+    {
+      "kind": "skill",
+      "id": "alex-skill-nlp",
+      "text": "NLP, retrieval and model evaluation",
+      "tags": ["nlp", "retrieval", "rag"],
+      "source": "synthetic/alex/skills",
+      "attested_by_user": true,
+      "label": "AI and NLP"
+    },
+    {
+      "kind": "skill",
+      "id": "alex-skill-tools",
+      "text": "Git, testing and API development",
+      "tags": ["git", "testing", "backend"],
+      "source": "synthetic/alex/skills",
+      "attested_by_user": true,
+      "label": "Engineering"
+    },
+    {
+      "kind": "project",
+      "id": "alex-project-rag",
+      "title": "Document QA prototype",
+      "text": "Implemented document ingestion, retrieval and source-page inspection for a local question-answering prototype.",
+      "tags": ["rag", "retrieval", "nlp", "python"],
+      "source": "synthetic/alex/project-rag",
+      "attested_by_user": true
+    },
+    {
+      "kind": "project",
+      "id": "alex-project-eval",
+      "title": "Retrieval evaluation",
+      "text": "Measured top-1 and top-3 evidence hits on a small synthetic question set.",
+      "tags": ["statistics", "python", "retrieval"],
+      "source": "synthetic/alex/project-eval",
+      "attested_by_user": true
+    },
+    {
+      "kind": "project",
+      "id": "alex-project-api",
+      "title": "Service API",
+      "text": "Built a small Python service with tests and a documented API.",
+      "tags": ["python", "testing", "backend"],
+      "source": "synthetic/alex/project-api",
+      "attested_by_user": true
+    }
+  ]
+}

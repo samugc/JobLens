@@ -1,0 +1,8 @@
+{
+  "id": "ml-platform-orbit",
+  "synthetic": true,
+  "title": "ML Platform Engineer",
+  "company": "Orbit Systems (fictional)",
+  "location": "Madrid, Spain · On-site",
+  "description": "About the role\nOperate and improve the tooling that supports machine-learning experiments and model delivery.\n\nRequirements:\n- Python\n- Docker\n- Kubernetes\n- AWS\n- Git\n- 3+ years of production experience\n\nPreferred:\n- LLM\n- RAG\n- PyTorch\n\nWe require a master's degree and the right to work in the EU. This role is on-site in Madrid.\n"
+}

@@ -1,0 +1,138 @@
+{
+  "schema_version": 3,
+  "candidate": {
+    "id": "jordan-lee",
+    "name": "Jordan Lee",
+    "headline": "Early-career data engineer · Python, SQL and reproducible analysis",
+    "note": "Fictional candidate. Every claim below is synthetic and exists only for this demo."
+  },
+  "headline": {
+    "text": "Early-career data engineer · Python, SQL and reproducible analysis",
+    "source": "synthetic/jordan/headline",
+    "attested_by_user": true
+  },
+  "facts": [
+    {
+      "kind": "profile",
+      "id": "jordan-data",
+      "text": "Built reproducible data analyses with Python, SQL and pandas.",
+      "tags": ["python", "sql", "pandas", "statistics"],
+      "source": "synthetic/jordan/analysis",
+      "attested_by_user": true
+    },
+    {
+      "kind": "profile",
+      "id": "jordan-api",
+      "text": "Built and tested Python services and small data pipelines.",
+      "tags": ["python", "testing", "backend", "git"],
+      "source": "synthetic/jordan/service",
+      "attested_by_user": true
+    },
+    {
+      "kind": "profile",
+      "id": "jordan-ml",
+      "text": "Trained and evaluated a machine learning classifier on tabular data.",
+      "tags": ["machine learning", "classification", "python", "statistics"],
+      "source": "synthetic/jordan/classifier",
+      "attested_by_user": true
+    },
+    {
+      "kind": "profile",
+      "id": "jordan-docker",
+      "text": "Containerised a local Python service with Docker for reproducible runs.",
+      "tags": ["docker", "python", "git"],
+      "source": "synthetic/jordan/docker",
+      "attested_by_user": true
+    },
+    {
+      "kind": "skill",
+      "id": "jordan-skill-python",
+      "text": "Python",
+      "tags": ["python"],
+      "source": "synthetic/jordan/skills",
+      "attested_by_user": true,
+      "label": "Programming"
+    },
+    {
+      "kind": "skill",
+      "id": "jordan-skill-sql",
+      "text": "SQL",
+      "tags": ["sql"],
+      "source": "synthetic/jordan/skills",
+      "attested_by_user": true,
+      "label": "Data"
+    },
+    {
+      "kind": "skill",
+      "id": "jordan-skill-pandas",
+      "text": "pandas",
+      "tags": ["pandas"],
+      "source": "synthetic/jordan/skills",
+      "attested_by_user": true,
+      "label": "Data"
+    },
+    {
+      "kind": "skill",
+      "id": "jordan-skill-stats",
+      "text": "Statistics",
+      "tags": ["statistics"],
+      "source": "synthetic/jordan/skills",
+      "attested_by_user": true,
+      "label": "Mathematics"
+    },
+    {
+      "kind": "skill",
+      "id": "jordan-skill-ml",
+      "text": "Machine learning and classification",
+      "tags": ["machine learning", "classification"],
+      "source": "synthetic/jordan/skills",
+      "attested_by_user": true,
+      "label": "AI and ML"
+    },
+    {
+      "kind": "skill",
+      "id": "jordan-skill-docker",
+      "text": "Docker",
+      "tags": ["docker"],
+      "source": "synthetic/jordan/skills",
+      "attested_by_user": true,
+      "label": "Engineering"
+    },
+    {
+      "kind": "skill",
+      "id": "jordan-skill-git",
+      "text": "Git",
+      "tags": ["git"],
+      "source": "synthetic/jordan/skills",
+      "attested_by_user": true,
+      "label": "Engineering"
+    },
+    {
+      "kind": "project",
+      "id": "jordan-project-analysis",
+      "title": "Cohort analysis",
+      "text": "Analysed synthetic customer data with Python, SQL and pandas and summarised the results.",
+      "tags": ["python", "sql", "pandas", "statistics"],
+      "source": "synthetic/jordan/project-analysis",
+      "attested_by_user": true
+    },
+    {
+      "kind": "project",
+      "id": "jordan-project-service",
+      "title": "Data service",
+      "text": "Built a tested Python data service and packaged it with Docker.",
+      "tags": ["python", "docker", "testing", "backend"],
+      "source": "synthetic/jordan/project-service",
+      "attested_by_user": true
+    },
+    {
+      "kind": "project",
+      "id": "jordan-project-ml",
+      "title": "Classifier experiment",
+      "text": "Trained a machine learning classifier and compared it with a simple baseline.",
+      "tags": ["machine learning", "classification", "python"],
+      "source": "synthetic/jordan/project-ml",
+      "attested_by_user": true
+    }
+  ]
+}
