@@ -508,3 +508,13 @@ test("the stylesheet defines the 65/35 review grid, mobile stacking and focus st
   assert.match(css, /\.downloads\s*\{[^}]*display:\s*grid/s);
   assert.match(css, /@media \(max-width: 430px\)/);
 });
+
+test("skip link focuses main without overriding native scrolling or Tab order", () => {
+  assert.match(html, /<main id="main" tabindex="-1">/);
+  let focused = false;
+  product.focusMain({ getElementById(id) {
+    assert.equal(id, "main");
+    return { focus(options) { assert.deepEqual(options, { preventScroll: true }); focused = true; } };
+  } });
+  assert.equal(focused, true);
+});

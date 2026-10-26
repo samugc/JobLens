@@ -30,6 +30,8 @@ def _set_base_style(doc: Document) -> None:
     rfonts.set(qn("w:eastAsia"), "Calibri")
 
     for section in doc.sections:
+        section.page_width = Cm(21)
+        section.page_height = Cm(29.7)
         section.top_margin = Cm(1.35)
         section.bottom_margin = Cm(1.35)
         section.left_margin = Cm(1.35)
@@ -147,6 +149,10 @@ def _render_contact(doc, draft: CanonicalDraft) -> None:
 def render_docx(draft: CanonicalDraft, destination: Any) -> None:
     doc = Document()
     _set_base_style(doc)
+    doc.core_properties.title = f"{draft.candidate.full_name} — CV"
+    doc.core_properties.author = draft.candidate.full_name
+    doc.core_properties.last_modified_by = ""
+    doc.core_properties.comments = ""
 
     # Header
     name_p = doc.add_paragraph()

@@ -90,3 +90,19 @@ def test_pdf_one_page_for_short():
     data = export_cv_pdf_bytes(make_draft())
     r = PdfReader(io.BytesIO(data))
     assert len(r.pages) == 1
+
+
+def test_docx_a4_and_candidate_metadata():
+    from docx import Document
+    from docx.shared import Cm
+
+    draft = make_draft()
+    doc = Document(io.BytesIO(export_cv_docx_bytes(draft)))
+    for section in doc.sections:
+        assert abs(section.page_width - Cm(21)) < 635
+        assert abs(section.page_height - Cm(29.7)) < 635
+        assert abs(section.left_margin - Cm(1.35)) < 635
+    assert doc.core_properties.author == draft["candidate"]["full_name"]
+    assert doc.core_properties.title == draft["candidate"]["full_name"] + " — CV"
+    assert not doc.core_properties.last_modified_by
+    assert not doc.core_properties.comments
