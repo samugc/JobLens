@@ -8,3 +8,22 @@ venv/
 *.egg-info/
 build/
 dist/
+# Verification scratch: logs and inventories with local absolute paths.
+.integration-verification/
+# Private user documents and local credentials must never enter a release.
+.env
+.env.*
+!.env.example
+private/
+uploads/
+profiles/
+exports/
+*.pdf
+*.docx
+# The only versioned document assets are the two reviewed synthetic demo
+# files. Arbitrary PDF/DOCX files remain ignored.
+!web/samples/alex-rivera-cv.pdf
+!web/samples/alex-rivera-cv-2.docx
+approved-profile*.json
+*.pem
+*.key

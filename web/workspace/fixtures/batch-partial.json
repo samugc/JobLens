@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.1",
+  "transport_version": "1.0",
+  "job_id": "job-synthetic-partial",
+  "batch": {
+    "status": "partial",
+    "document_count": 5,
+    "total_bytes": 56128,
+    "status_counts": {
+      "extracted": 1,
+      "partial": 1,
+      "empty": 1,
+      "scanned_pdf": 1,
+      "encrypted": 1,
+      "malformed": 0,
+      "unsupported_format": 0,
+      "too_large": 0
+    },
+    "limits": {
+      "max_documents": 5,
+      "max_file_bytes": 10485760,
+      "max_batch_bytes": 26214400,
+      "max_text_chars": 200000,
+      "max_pdf_pages": 100,
+      "max_docx_paragraphs": 20000,
+      "max_docx_xml_bytes": 10485760
+    },
+    "error": null
+  },
+  "documents": [
+    {
+      "document_id": "doc-synthetic-cv-0",
+      "index": 0,
+      "filename": "sample-cv.pdf",
+      "format": "pdf",
+      "status": "extracted",
+      "text": "Jordan Vale\nSynthetic analyst profile used only to test the evidence workspace.",
+      "segments": [
+        {
+          "locator": { "kind": "page", "page": 1 },
+          "text": "Jordan Vale\nSynthetic analyst profile used only to test the evidence workspace."
+        }
+      ],
+      "warnings": [],
+      "metadata": { "size_bytes": 18240, "page_count": 1, "paragraph_count": null }
+    },
+    {
+      "document_id": "doc-synthetic-portfolio-1",
+      "index": 1,
+      "filename": "sample-portfolio.docx",
+      "format": "docx",
+      "status": "partial",
+      "text": "Portfolio notes kept short for review.",
+      "segments": [
+        {
+          "locator": { "kind": "paragraph", "paragraph": 2, "section": "Portfolio" },
+          "text": "Portfolio notes kept short for review."
+        }
+      ],
+      "warnings": [
+        {
+          "code": "text_truncated",
+          "message": "Extracted text was truncated at 200000 characters."
+        }
+      ],
+      "metadata": { "size_bytes": 14336, "page_count": null, "paragraph_count": 40 }
+    },
+    {
+      "document_id": "doc-synthetic-blank-2",
+      "index": 2,
+      "filename": "sample-blank.pdf",
+      "format": "pdf",
+      "status": "empty",
+      "text": "",
+      "segments": [],
+      "warnings": [
+        { "code": "empty_document", "message": "No extractable text was found in the document." }
+      ],
+      "metadata": { "size_bytes": 4096, "page_count": 1, "paragraph_count": null }
+    },
+    {
+      "document_id": "doc-synthetic-scan-3",
+      "index": 3,
+      "filename": "sample-scan.pdf",
+      "format": "pdf",
+      "status": "scanned_pdf",
+      "text": "",
+      "segments": [],
+      "warnings": [
+        {
+          "code": "scanned_pdf",
+          "message": "No extractable text was found; the PDF appears to be image-only or scanned."
+        }
+      ],
+      "metadata": { "size_bytes": 20480, "page_count": 2, "paragraph_count": null }
+    },
+    {
+      "document_id": "doc-synthetic-protected-4",
+      "index": 4,
+      "filename": "sample-protected.pdf",
+      "format": "pdf",
+      "status": "encrypted",
+      "text": "",
+      "segments": [],
+      "warnings": [
+        {
+          "code": "pdf_encrypted",
+          "message": "The PDF is password-protected; remove the password before extraction."
+        }
+      ],
+      "metadata": { "size_bytes": 3072, "page_count": 1, "paragraph_count": null }
+    }
+  ]
+}

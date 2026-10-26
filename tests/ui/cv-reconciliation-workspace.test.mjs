@@ -1,0 +1,40 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import {createRequire} from 'node:module';
+import {readFileSync} from 'node:fs';
+const require=createRequire(import.meta.url);
+const cvz=require('../../web/workspace/reconciliation-adapter.js');
+function sample(){
+ const text='😀 Python 2024';
+ const evidence={document_id:'doc1',segment_index:0,locator:{kind:'page',page:1},quote:'Python',start:2,end:8,support:'explicit_claim'};
+ const source={jobId:'job1',documents:[{id:'doc1',segments:[{text,locator:{kind:'page',page:1}}]}]};
+ const claim={claim_id:'claim1',category:'skill',subject:'python',subject_label:'Python',attributes:[{name:'name',value:'Python',normalized:'python'}],evidence:[evidence],qualifier:'explicit_claim'};
+ const raw={reconciliation_schema_version:'0.1',parser_schema_version:'1.1',profile_schema_version:'0.1',job_id:'job1',documents:[{document_id:'doc1'}],claims:[claim,{...structuredClone(claim),claim_id:'claim2'}],relationships:[{relationship_id:'rel1',relation:'duplicate',left_claim_id:'claim1',right_claim_id:'claim2',attributes:['name'],reason:'backend reason',basis:'skill',evidence:[evidence]}],decisions:[{decision_id:'dec1',category:'skill',subject:'python',subject_label:'Python',outcome:'auto_consolidate',keep_claim_ids:[],merge_claim_ids:['claim1','claim2'],alternative_claim_ids:[],relationship_ids:['rel1'],explanation:'backend decision',requires_user_confirmation:false,approval_state:'not_approved'}],consolidated:[{category:'skill',subject:'python',subject_label:'Python',attributes:claim.attributes,claim_ids:['claim1','claim2'],evidence:[evidence,structuredClone(evidence)],qualifiers:['explicit_claim'],approval_state:'not_approved'}],warnings:[]};
+ return {raw,source};
+}
+const normalize=({raw,source})=>cvz.normalizeReport(raw,{source});
+test('canonical report is preserved without invented wire properties',()=>{const s=sample();assert.deepEqual(normalize(s).report,s.raw);assert.equal(normalize(s).counts.approved,0);});
+test('code-point citations and source locators are verified',()=>{const m=normalize(sample());assert.equal(m.verified.get('claim1'),true);});
+test('tampered quotations block the group',()=>{const s=sample();s.raw.claims[0].evidence[0].quote='Java';assert.equal(normalize(s).groups[0].blocking,true);});
+test('tampered locator blocks evidence',()=>{const s=sample();s.raw.claims[0].evidence[0].locator.page=2;assert.equal(normalize(s).verified.get('claim1'),false);});
+test('invalid relationship evidence remains blocking',()=>{const s=sample();s.raw.relationships[0].evidence[0].quote='wrong';assert.equal(normalize(s).groups[0].blocking,true);});
+test('invalid consolidated citation remains blocking',()=>{const s=sample();s.raw.consolidated[0].evidence[1].quote='wrong';assert.equal(normalize(s).groups[0].blocking,true);});
+test('versions and job identity fail closed',()=>{for(const key of ['reconciliation_schema_version','parser_schema_version','profile_schema_version','job_id']){const s=sample();s.raw[key]='wrong';assert.throws(()=>normalize(s),cvz.ReconciliationContractError);}});
+test('foreign document and claim references fail closed',()=>{const s=sample();s.raw.relationships[0].left_claim_id='foreign';assert.throws(()=>normalize(s));const d=sample();d.raw.documents[0].document_id='foreign';assert.throws(()=>normalize(d));});
+test('duplicate IDs and invalid decision references are refused',()=>{const s=sample();s.raw.claims[1].claim_id='claim1';assert.throws(()=>normalize(s));const d=sample();d.raw.decisions[0].relationship_ids=['foreign'];assert.throws(()=>normalize(d));});
+test('years in quotes never create temporal relationships',()=>{const s=sample();s.raw.relationships=[];s.raw.decisions=[];s.raw.consolidated=[];assert.deepEqual(normalize(s).groups[0].relationships,[]);});
+test('unknown and semantic relationships stay conservative',()=>{for(const change of [{relation:'unknown'},{relation:'uncertain'},{semantic:true}]){const s=sample();Object.assign(s.raw.relationships[0],change);assert.equal(normalize(s).groups[0].blocking,true);assert.equal(normalize(s).counts.approved,0);}});
+test('recommendations and unknown outcomes never become approvals',()=>{for(const outcome of ['recommend','unresolved','unknown']){const s=sample();s.raw.decisions[0].outcome=outcome;s.raw.decisions[0].requires_user_confirmation=true;s.raw.decisions[0].merge_claim_ids=[];s.raw.decisions[0].alternative_claim_ids=['claim1','claim2'];assert.equal(normalize(s).groups[0].blocking,true);assert.equal(normalize(s).counts.approved,0);}});
+test('consolidation retains every citation and does not approve',()=>{const m=normalize(sample());assert.equal(m.report.consolidated[0].evidence.length,2);assert.equal(m.counts.approved,0);assert.equal(typeof cvz.approveAll,'undefined');});
+test('actual attributes and reasons are retained',()=>{const s=sample();s.raw.claims[0].attributes.push({name:'duration_months',value:24,normalized:'24'});const m=normalize(s);assert.deepEqual(m.report.claims[0].attributes,s.raw.claims[0].attributes);assert.equal(m.groups[0].relationships[0].reason,'backend reason');});
+test('client sends source-only request with original parser status',async()=>{
+ const job={id:'job1',documents:[{id:'doc1',index:0,filename:'synthetic.pdf',format:'pdf',parserStatus:'partial',status:'needs_review',segments:[{text:'😀 Python 2024',locator:{kind:'page',page:1}}]}]};
+ const client=new cvz.ReconciliationAdapter({fetchImpl:async(url,opts)=>{assert.equal(url,'/api/cv/reconciliations');assert.equal(opts.headers['X-JobLens-Request'],'1');assert.equal(opts.credentials,'same-origin');const body=JSON.parse(opts.body);assert.deepEqual(Object.keys(body).sort(),['documents','job_id']);assert.equal(body.documents[0].status,'partial');return {ok:true,json:async()=>sample().raw};}});
+ assert.equal((await client.createReconciliation(job)).counts.approved,0);
+});
+test('HTTP failures are surfaced instead of synthesizing a report',async()=>{const c=new cvz.ReconciliationAdapter({fetchImpl:async()=>({ok:false,status:503,json:async()=>({error:{message:'Unavailable'}})})});await assert.rejects(c.createReconciliation({id:'job1',documents:[{id:'doc1',index:0,segments:[]}]}),/Unavailable/);});
+test('recommendations retain alternatives and never merge',()=>{const s=sample();const d=s.raw.decisions[0];d.outcome='recommend';d.keep_claim_ids=['claim1'];d.merge_claim_ids=[];d.alternative_claim_ids=['claim2'];d.requires_user_confirmation=true;const m=normalize(s);assert.deepEqual(m.report.decisions[0].alternative_claim_ids,['claim2']);assert.deepEqual(m.report.decisions[0].merge_claim_ids,[]);assert.equal(m.groups[0].decisions.length,1);assert.equal(m.groups[0].blocking,true);assert.equal(m.counts.approved,0);});
+test('only auto-consolidation may merge claims',()=>{const s=sample();s.raw.decisions[0].outcome='recommend';s.raw.decisions[0].keep_claim_ids=['claim1'];assert.throws(()=>normalize(s),/only auto_consolidate may merge/);});
+test('engine approval states are refused',()=>{const s=sample();s.raw.decisions[0].approval_state='approved';assert.throws(()=>normalize(s),/cannot approve a decision/);const c=sample();c.raw.consolidated[0].approval_state='approved';assert.throws(()=>normalize(c),/cannot approve a consolidated claim/);});
+test('consolidated qualifiers are validated and preserved',()=>{const s=sample();assert.deepEqual(normalize(s).report.consolidated[0].qualifiers,['explicit_claim']);s.raw.consolidated[0].qualifiers=['invented_support'];assert.throws(()=>normalize(s),/invalid consolidated qualifier/);});
+test('production UI renders canonical fields and keeps profile review separate',()=>{const app=readFileSync(new URL('../../web/workspace/app.js',import.meta.url),'utf8');assert.ok(app.includes('createReconciliation(job)'));assert.ok(app.includes('decision.explanation'));assert.ok(app.includes('relation.reason'));assert.ok(app.includes('renderCanonicalAttributes(claim.attributes)'));assert.ok(!app.includes('cvz.buildReconciliation'));assert.ok(!app.includes('applyBulk'));});

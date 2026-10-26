@@ -1,0 +1,23 @@
+include LICENSE README.md pyproject.toml .gitignore
+include run_demo.py run_cv_generation_demo.py
+recursive-include .github *
+recursive-include data *
+recursive-include docs *
+recursive-include evaluation *.py *.json *.md
+recursive-include patches *
+recursive-include scripts *
+recursive-include tests *.py *.mjs *.json *.md
+recursive-include web *
+# Generated/local-only artifacts must stay out even when they are present in
+# the working tree (for example after running the evaluation in CI).
+exclude evaluation/results.json
+exclude docs/final-stabilization-report.md
+exclude docs/integrated-release-report.md
+exclude docs/release-qa-report.md
+# Exactly two synthetic demo assets are intentionally published. Every other
+# PDF or DOCX is still excluded below, including files under web/ and data/.
+global-exclude *.pdf *.docx *.pyc
+global-exclude .DS_Store
+include web/samples/alex-rivera-cv.pdf
+include web/samples/alex-rivera-cv-2.docx
+prune src/joblens_public.egg-info

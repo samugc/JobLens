@@ -1,0 +1,127 @@
+{
+  "transport_version": "1.0",
+  "schema_version": "1.1",
+  "job_id": "job_synthetic_profile",
+  "batch": {
+    "status": "completed",
+    "document_count": 2,
+    "total_bytes": 572,
+    "status_counts": {
+      "extracted": 2,
+      "partial": 0,
+      "empty": 0,
+      "scanned_pdf": 0,
+      "encrypted": 0,
+      "malformed": 0,
+      "unsupported_format": 0,
+      "too_large": 0
+    },
+    "limits": {
+      "max_documents": 5,
+      "max_file_bytes": 10485760,
+      "max_batch_bytes": 26214400,
+      "max_text_chars": 200000,
+      "max_pdf_pages": 100,
+      "max_docx_paragraphs": 20000,
+      "max_docx_xml_bytes": 10485760
+    },
+    "error": null
+  },
+  "documents": [
+    {
+      "document_id": "doc_synthetic_cv_0",
+      "index": 0,
+      "filename": "synthetic-cv.pdf",
+      "format": "pdf",
+      "status": "extracted",
+      "text": "Sample Candidate\nSynthetic profile used only to test the evidence and review interfaces.\n\nSkills\n🎯 Python, SQL, Docker, Kubernetes\nExperience\nData Engineer | Reporting Platform\nBackend Engineer | Ledger Services\nProjects\nLedger Dashboard — a reporting tool for a synthetic retailer\nInvoice Tracker\nEducation\nBSc in Computer Science\nMSc Data Engineering\nLanguages\nEnglish (C1), Spanish (B2)\nCertifications\nAWS Certified Solutions Architect",
+      "segments": [
+        {
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "text": "Sample Candidate\nSynthetic profile used only to test the evidence and review interfaces.\n\nSkills\n🎯 Python, SQL, Docker, Kubernetes"
+        },
+        {
+          "locator": {
+            "kind": "page",
+            "page": 2
+          },
+          "text": "Experience\nData Engineer | Reporting Platform\nBackend Engineer | Ledger Services"
+        },
+        {
+          "locator": {
+            "kind": "page",
+            "page": 3
+          },
+          "text": "Projects\nLedger Dashboard — a reporting tool for a synthetic retailer\nInvoice Tracker"
+        },
+        {
+          "locator": {
+            "kind": "page",
+            "page": 4
+          },
+          "text": "Education\nBSc in Computer Science\nMSc Data Engineering"
+        },
+        {
+          "locator": {
+            "kind": "page",
+            "page": 5
+          },
+          "text": "Languages\nEnglish (C1), Spanish (B2)"
+        },
+        {
+          "locator": {
+            "kind": "page",
+            "page": 6
+          },
+          "text": "Certifications\nAWS Certified Solutions Architect"
+        }
+      ],
+      "warnings": [],
+      "metadata": {
+        "size_bytes": 443,
+        "page_count": 6,
+        "paragraph_count": null
+      }
+    },
+    {
+      "document_id": "doc_synthetic_letter_1",
+      "index": 1,
+      "filename": "synthetic-letter.docx",
+      "format": "docx",
+      "status": "extracted",
+      "text": "Skills\nPython, Docker\nLanguages\nEnglish (B2), German (A2)\nProjects\nLedger Dashboard: an internal dashboard for the synthetic team",
+      "segments": [
+        {
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 1
+          },
+          "text": "Skills\nPython, Docker"
+        },
+        {
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 2
+          },
+          "text": "Languages\nEnglish (B2), German (A2)"
+        },
+        {
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 3
+          },
+          "text": "Projects\nLedger Dashboard: an internal dashboard for the synthetic team"
+        }
+      ],
+      "warnings": [],
+      "metadata": {
+        "size_bytes": 129,
+        "page_count": null,
+        "paragraph_count": 3
+      }
+    }
+  ]
+}
