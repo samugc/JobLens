@@ -41,44 +41,91 @@ def test_mount_rejects_wrong_token(app_server):
 
 def test_absent_dependency_keeps_demo_available():
     # -S really excludes site-packages, rather than mocking the parser result.
+    # Keep the child stdlib-only and give every wait a bounded timeout so a
+    # macOS scheduling stall produces diagnostics instead of an opaque timeout.
     code = '''
-import importlib.util, json, threading
+import faulthandler, http.client, importlib.util, json, threading
+faulthandler.dump_traceback_later(45, exit=True)
+
+def stage(name):
+    print(f"[joblens-ci] {name}", flush=True)
+
+stage("checking-pypdf")
 assert importlib.util.find_spec("pypdf") is None
+
+stage("importing-app")
 from joblens_public.data import load_demo_data
 from joblens_public.webapp import create_server
-from test_cv_mount import request, post_cv
-server = create_server(*load_demo_data(), 0)
-t = threading.Thread(target=server.serve_forever, daemon=True)
-t.start()
-try:
-    assert request(server.server_port, "GET", "/")[0] == 200
-    assert request(server.server_port, "GET", "/workspace/")[0] == 200
-    status, _, raw = post_cv(server.server_port, [("files", "synthetic.pdf", b"%PDF-synthetic")])
-    assert status == 503, (status, raw)
-    assert json.loads(raw)["error"]["code"] == "parser_unavailable"
-finally:
-    server.shutdown(); server.server_close(); t.join()
-'''
-    # Use stdlib helpers only: test_cv_mount itself imports pytest/pypdf.
-    code = code.replace('from test_cv_mount import request, post_cv', '''
-import http.client
 
 def request(port, method, path, body=None, headers=None):
-    c = http.client.HTTPConnection("127.0.0.1", port)
-    c.request(method, path, body=body, headers=headers or {})
-    r = c.getresponse(); result = (r.status, dict(r.getheaders()), r.read()); c.close()
-    return result
+    connection = http.client.HTTPConnection("127.0.0.1", port, timeout=15.0)
+    try:
+        connection.request(method, path, body=body, headers=headers or {})
+        response = connection.getresponse()
+        return response.status, dict(response.getheaders()), response.read()
+    finally:
+        connection.close()
 
 def post_cv(port, files):
     body = b'--synthetic\\r\\nContent-Disposition: form-data; name="files"; filename="synthetic.pdf"\\r\\n\\r\\n%PDF-synthetic\\r\\n--synthetic--\\r\\n'
     return request(port, "POST", "/api/cv/extractions", body, {
         "Origin": f"http://127.0.0.1:{port}", "X-JobLens-Request": "1",
         "Content-Type": "multipart/form-data; boundary=synthetic"})
-''')
-    result = subprocess.run([sys.executable, '-S', '-c', code], capture_output=True,
-                            text=True, timeout=15,
-                            env={**os.environ, 'PYTHONPATH': str(ROOT / 'src')})
-    assert result.returncode == 0, result.stdout + result.stderr
+
+stage("creating-server")
+server = create_server(*load_demo_data(), 0)
+t = threading.Thread(target=server.serve_forever, daemon=True)
+stage("starting-server")
+t.start()
+cleanup_problem = None
+try:
+    stage("request-root")
+    assert request(server.server_port, "GET", "/")[0] == 200
+    stage("request-workspace")
+    assert request(server.server_port, "GET", "/workspace/")[0] == 200
+    stage("request-extraction")
+    status, _, raw = post_cv(server.server_port, [("files", "synthetic.pdf", b"%PDF-synthetic")])
+    stage("assert-extraction")
+    assert status == 503, (status, raw)
+    assert json.loads(raw)["error"]["code"] == "parser_unavailable"
+finally:
+    stage("cleanup-start")
+    stopper = threading.Thread(target=server.shutdown, daemon=True)
+    stopper.start()
+    stopper.join(timeout=5)
+    server.server_close()
+    t.join(timeout=5)
+    if stopper.is_alive():
+        cleanup_problem = "server.shutdown() did not finish within 5s"
+    if t.is_alive():
+        cleanup_problem = (cleanup_problem + "; " if cleanup_problem else "") + "server thread did not stop within 5s"
+    stage("cleanup-complete")
+if cleanup_problem:
+    raise RuntimeError(cleanup_problem)
+'''
+    try:
+        result = subprocess.run(
+            [sys.executable, '-S', '-c', code],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            env={**os.environ, 'PYTHONPATH': str(ROOT / 'src')},
+        )
+    except subprocess.TimeoutExpired as error:
+        stdout = error.stdout or ''
+        stderr = error.stderr or ''
+        if isinstance(stdout, bytes):
+            stdout = stdout.decode('utf-8', 'replace')
+        if isinstance(stderr, bytes):
+            stderr = stderr.decode('utf-8', 'replace')
+        raise AssertionError(
+            'No-parser child process timed out after 60s.\\n'
+            f'stdout:\\n{stdout}\\nstderr:\\n{stderr}'
+        ) from error
+    assert result.returncode == 0, (
+        f'No-parser child process exited {result.returncode}.\\n'
+        f'stdout:\\n{result.stdout}\\nstderr:\\n{result.stderr}'
+    )
 
 
 def test_mounted_size_limits(app_server):
