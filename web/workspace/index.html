@@ -1,0 +1,832 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="JobLens CV evidence workspace: see what your documents say, what can be joined, and what needs your decision.">
+  <meta name="joblens-cv-api-base" content="/api/cv">
+  <title>JobLens · Document review</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#workspace">Skip to content</a>
+  <div class="page-shell">
+    <header class="masthead">
+      <a class="brand" href="../">
+        <span class="brand-mark" aria-hidden="true">JL</span>
+        <span class="brand-copy">
+          <strong>JobLens</strong>
+          <small>Document review</small>
+        </span>
+      </a>
+      <div class="masthead-meta">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="data-mode-label">No data loaded</span>
+        <span class="meta-separator" aria-hidden="true">·</span>
+        <span>Nothing is stored</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">Your CV, explained</p>
+        <h1 id="hero-title">See what your documents say.<br> <em>Decide what is true.</em></h1>
+        <p class="hero-copy">
+          Add up to five CVs or cover letters in PDF or DOCX. JobLens extracts the
+          text, proposes a profile, and compares the documents to show what agrees
+          and what conflicts. You have the final say.
+        </p>
+        <div class="hero-tags" aria-label="What you can do here">
+          <span class="tag">Up to 5 documents</span>
+          <span class="tag">PDF and DOCX</span>
+          <span class="tag">Every claim keeps its quote</span>
+        </div>
+      </section>
+
+      <section id="workspace" class="workspace" aria-label="Document review">
+        <aside class="control-rail">
+          <section class="panel panel-add" aria-labelledby="add-heading">
+            <div class="panel-heading">
+              <span class="step" aria-hidden="true">01</span>
+              <h2 id="add-heading">Add your documents</h2>
+            </div>
+
+            <div id="dropzone" class="dropzone">
+              <input
+                id="file-input"
+                class="visually-hidden"
+                type="file"
+                multiple
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                aria-describedby="file-help"
+              >
+              <label for="file-input" class="dropzone-label">
+                <span class="dropzone-icon" aria-hidden="true">+</span>
+                <strong>Choose PDF or DOCX files</strong>
+                <span>or drag them here</span>
+              </label>
+            </div>
+            <p id="file-help" class="field-note">
+              Up to five documents. They are only sent to the local reader on this
+              machine; nothing leaves it.
+            </p>
+
+            <div id="selection-alert" class="inline-alert" role="alert" hidden></div>
+
+            <div class="selection-head">
+              <span class="field-label">Selected documents</span>
+              <span id="selection-count" class="count">0 / 5</span>
+            </div>
+            <ul id="selection-list" class="queue-list" aria-label="Selected documents"></ul>
+            <p id="selection-empty" class="selection-empty">You have not added any documents yet.</p>
+
+            <div class="button-row">
+              <button id="extract" class="button button-primary" type="button" disabled>
+                Analyse documents
+              </button>
+              <button id="clear" class="button button-secondary" type="button" disabled>
+                Remove all
+              </button>
+            </div>
+            <button id="cancel" class="button button-quiet" type="button" hidden>
+              Stop waiting
+            </button>
+
+            <p class="field-note field-note-tight">
+              If a document cannot be read, you will see why. Missing text is never
+              filled in or invented.
+            </p>
+          </section>
+
+          <details class="panel tech-panel">
+            <summary>How it works and its limits</summary>
+            <div class="tech-panel-body">
+              <p>
+                The local PDF and DOCX reader extracts the text. This screen does
+                not interpret the file on its own.
+              </p>
+              <dl class="contract-facts">
+                <div>
+                  <dt>Supported format</dt>
+                  <dd>PDF or DOCX, up to 5 files</dd>
+                </div>
+                <div>
+                  <dt>References</dt>
+                  <dd>Page or paragraph, exactly as returned by the reader</dd>
+                </div>
+                <div>
+                  <dt>What it does not do</dt>
+                  <dd>It does not score, verify, or store anything</dd>
+                </div>
+              </dl>
+              <p class="field-note">
+                Technical details (schemas, versions, and the contract) live in the
+                project documentation and in each report.
+              </p>
+            </div>
+          </details>
+        </aside>
+
+        <section id="results" class="results">
+          <div class="view-switch" role="tablist" aria-label="Review steps">
+            <button
+              id="view-extraction"
+              class="view-tab is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="extraction-view"
+            >
+              <span class="view-tab-step" aria-hidden="true">1</span>
+              <span class="view-tab-label">Documents</span>
+            </button>
+            <button
+              id="view-profile"
+              class="view-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="profile-view"
+            >
+              <span class="view-tab-step" aria-hidden="true">2</span>
+              <span class="view-tab-label">Profile</span>
+            </button>
+            <button
+              id="view-reconciliation"
+              class="view-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="reconciliation-view"
+            >
+              <span class="view-tab-step" aria-hidden="true">3</span>
+              <span class="view-tab-label">Consistency</span>
+            </button>
+            <button
+              id="view-tailor"
+              class="view-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tailor-view"
+            >
+              <span class="view-tab-step" aria-hidden="true">4</span>
+              <span class="view-tab-label">Tailor CV</span>
+            </button>
+          </div>
+
+          <div id="next-step" class="next-step" hidden>
+            <div class="next-step-copy">
+              <span class="next-step-kicker">Next step</span>
+              <strong id="next-step-label"></strong>
+            </div>
+            <button id="next-step-action" class="button button-primary button-inline" type="button">
+              Continue
+            </button>
+          </div>
+
+          <div id="extraction-view" role="tabpanel" aria-labelledby="view-extraction">
+            <div id="empty-state" class="empty-state">
+              <div class="empty-orbit" aria-hidden="true">
+                <span class="orbit-dot orbit-dot-a"></span>
+                <span class="orbit-dot orbit-dot-b"></span>
+                <span class="orbit-core">CV</span>
+              </div>
+              <h2>Everything starts here.</h2>
+              <p>
+                Choose your documents on the left. First you will see exactly what
+                was read; then you can review the facts extracted from it.
+              </p>
+
+              <div class="legend-grid">
+                <article class="legend-card">
+                  <span class="status-pill status-ok"><span class="status-dot"></span>Has text</span>
+                  <h3>Read</h3>
+                  <p>Text is available. It may still include warnings.</p>
+                </article>
+                <article class="legend-card">
+                  <span class="status-pill status-warn"><span class="status-dot"></span>Review</span>
+                  <h3>Partial read</h3>
+                  <p>Text is missing or warnings exist. Check it before trusting it.</p>
+                </article>
+                <article class="legend-card">
+                  <span class="status-pill status-error"><span class="status-dot"></span>No text</span>
+                  <h3>Could not read</h3>
+                  <p>The reason stays visible. Nothing is filled in.</p>
+                </article>
+              </div>
+
+              <ol class="how-list" aria-label="How the review works">
+                <li><strong>Choose</strong> up to five PDF or DOCX files.</li>
+                <li><strong>Analyse</strong> the text with the local reader.</li>
+                <li><strong>Review</strong> the quotes, proposals, and conflicts.</li>
+              </ol>
+            </div>
+
+            <div id="ready-state" class="state-panel ready-state" hidden>
+              <p class="eyebrow">Ready to analyse</p>
+              <h2 id="ready-heading" tabindex="-1">Your documents are ready.</h2>
+              <p id="ready-copy">
+                Nothing has been read yet. Analyse the documents to see the text,
+                references, and warnings.
+              </p>
+              <ul id="ready-list" class="ready-list" aria-label="Documents ready to analyse"></ul>
+              <button id="extract-ready" class="button button-primary button-inline" type="button">
+                Analyse documents
+              </button>
+            </div>
+
+            <div id="loading-state" class="loading-state" hidden>
+              <div class="loading-orbit" aria-hidden="true"><span></span></div>
+              <p class="eyebrow">Analysing</p>
+              <h2 id="loading-heading" tabindex="-1">Reading your documents.</h2>
+              <p id="loading-copy">
+                The documents are being sent to the local reader. Nothing is assumed
+                read until it responds.
+              </p>
+              <div class="indeterminate-bar" role="progressbar" aria-label="Analysing documents">
+                <span></span>
+              </div>
+            </div>
+
+            <div id="error-state" class="error-state" hidden role="alert">
+              <p class="eyebrow">Could not analyse</p>
+              <h2 id="error-heading" tabindex="-1">We could not show the result.</h2>
+              <p id="error-message"></p>
+              <p id="error-hint" class="field-note"></p>
+              <div class="button-row button-row-tight">
+                <button id="retry" class="button button-primary" type="button">Try again</button>
+                <button id="dismiss-error" class="button button-secondary" type="button">
+                  Back to documents
+                </button>
+              </div>
+            </div>
+
+            <div id="report" hidden>
+              <header class="report-head">
+                <div>
+                  <p class="eyebrow">Step 1 · Documents</p>
+                  <h2 id="report-title" tabindex="-1"></h2>
+                  <p id="report-subtitle" class="report-subtitle"></p>
+                </div>
+              </header>
+
+              <div id="job-banner" class="banner" hidden>
+                <strong id="job-banner-title"></strong>
+                <p id="job-banner-copy"></p>
+                <div id="job-progress-wrap" class="job-progress" hidden>
+                  <div class="progress-meta">
+                    <span id="job-progress-label">Documents finished</span>
+                    <span id="job-progress-count"></span>
+                  </div>
+                  <progress
+                    id="job-progress"
+                    max="1"
+                    value="0"
+                    aria-labelledby="job-progress-label"
+                  ></progress>
+                </div>
+              </div>
+
+              <div id="job-warnings" class="warning-list" hidden></div>
+
+              <div class="summary-grid" aria-label="Analysis summary">
+                <article class="summary-card">
+                  <span class="summary-label">Documents</span>
+                  <strong id="summary-total">0</strong>
+                  <span id="summary-total-note" class="summary-note"></span>
+                </article>
+                <article class="summary-card">
+                  <span class="summary-label">With text</span>
+                  <strong id="summary-extracted">0</strong>
+                  <span id="summary-extracted-note" class="summary-note"></span>
+                </article>
+                <article class="summary-card summary-card-warn">
+                  <span class="summary-label">To review</span>
+                  <strong id="summary-review">0</strong>
+                  <span id="summary-review-note" class="summary-note"></span>
+                </article>
+                <article class="summary-card summary-card-error">
+                  <span class="summary-label">No text</span>
+                  <strong id="summary-failed">0</strong>
+                  <span id="summary-failed-note" class="summary-note"></span>
+                </article>
+              </div>
+
+              <p class="method-note">
+                These numbers describe what the reader returned. “With text” does
+                not mean correct, complete, or relevant.
+              </p>
+
+              <section class="report-section" aria-labelledby="documents-heading">
+                <div class="section-head">
+                  <div>
+                    <span class="section-kicker">Documents</span>
+                    <h3 id="documents-heading">What was read</h3>
+                  </div>
+                  <span id="documents-count" class="count"></span>
+                </div>
+                <div id="document-tabs" class="document-grid" role="tablist" aria-label="Analysed documents"></div>
+                <div id="documents-empty" class="section-empty" hidden>
+                  The reader returned no documents. There is no text to review.
+                </div>
+              </section>
+
+              <section id="cv-reader" class="reader-panel" aria-labelledby="reader-title" role="tabpanel" tabindex="-1">
+                <div class="section-head reader-head">
+                  <div>
+                    <span class="section-kicker">Read text</span>
+                    <h3 id="reader-title" tabindex="-1">No document selected</h3>
+                    <p id="reader-meta" class="reader-meta"></p>
+                  </div>
+                  <span id="reader-status" class="status-pill status-neutral">
+                    <span class="status-dot"></span>No document
+                  </span>
+                </div>
+
+                <div id="reader-warnings" class="warning-list" hidden></div>
+                <div id="reader-state" class="section-empty" hidden></div>
+
+                <div id="reader-grid" class="reader-grid" hidden>
+                  <nav class="outline" aria-labelledby="outline-heading">
+                    <div class="outline-head">
+                      <h4 id="outline-heading">References</h4>
+                      <span id="outline-count" class="count"></span>
+                    </div>
+                    <div id="outline-list" class="outline-list"></div>
+                  </nav>
+
+                  <div class="source-view">
+                    <div class="source-toolbar">
+                      <span id="source-position" class="source-position" aria-live="polite"></span>
+                      <div class="source-nav">
+                        <button id="previous-segment" class="button button-compact" type="button">
+                          Previous
+                        </button>
+                        <button id="next-segment" class="button button-compact" type="button">
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                    <article id="source-block" class="source-block"></article>
+                  </div>
+                </div>
+              </section>
+
+              <details class="limits tech-details">
+                <summary>Technical details of the analysis</summary>
+                <div class="limits-body">
+                  <div class="report-badges">
+                    <span id="job-badge" class="badge badge-neutral"></span>
+                    <span id="contract-badge" class="badge badge-neutral"></span>
+                  </div>
+                  <p>
+                    This shows only what the reader returned. It does not verify
+                    that a CV is true, complete, or suitable for a role.
+                  </p>
+                  <ul>
+                    <li>Pages and paragraphs come from the reader, unchanged.</li>
+                    <li>A read document may still have warnings or incomplete text.</li>
+                    <li>A failed document says nothing bad about the person who wrote it.</li>
+                    <li>Nothing is stored: refreshing loses the session.</li>
+                  </ul>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <div id="profile-view" role="tabpanel" aria-labelledby="view-profile" hidden>
+            <header class="report-head">
+              <div>
+                <p class="eyebrow">Step 2 · Profile</p>
+                <h2 id="profile-title" tabindex="-1">Review what we found</h2>
+                <p id="profile-subtitle" class="report-subtitle">
+                  There is no profile yet.
+                </p>
+              </div>
+              <div class="report-badges">
+                <span id="profile-badge" class="badge badge-neutral">No profile</span>
+                <span id="profile-schema-badge" class="badge badge-neutral">Schema —</span>
+              </div>
+            </header>
+
+            <div id="profile-banner" class="banner" hidden>
+              <strong id="profile-banner-title"></strong>
+              <p id="profile-banner-copy"></p>
+            </div>
+
+            <div class="profile-toolbar">
+              <button id="profile-build" class="button button-primary button-inline" type="button">
+                Create the profile from these documents
+              </button>
+              <button id="profile-preview" class="button button-secondary button-inline" type="button" hidden disabled>
+                Load synthetic sample
+              </button>
+              <button id="profile-preview-suggestion" class="button button-secondary button-inline" type="button" hidden disabled>
+                Load synthetic sample with a suggestion
+              </button>
+              <button id="profile-clear" class="button button-quiet button-inline" type="button" hidden>
+                Start over
+              </button>
+              <button id="profile-export-approved" class="button button-secondary button-inline" type="button" hidden>
+                Export approved profile
+              </button>
+              <input id="profile-import-approved" type="file" accept="application/json" hidden />
+            </div>
+            <p id="profile-hint" class="field-note"></p>
+
+            <p id="profile-status" class="profile-status" role="status" aria-live="polite"></p>
+
+            <div class="summary-grid profile-summary" aria-label="Profile summary">
+              <article class="summary-card">
+                <span class="summary-label">To review</span>
+                <strong id="profile-count-proposed">0</strong>
+                <span id="profile-count-proposed-note" class="summary-note">Awaiting your decision</span>
+              </article>
+              <article class="summary-card summary-card-ok">
+                <span class="summary-label">Approved</span>
+                <strong id="profile-count-approved">0</strong>
+                <span id="profile-count-approved-note" class="summary-note">Decided by you</span>
+              </article>
+              <article class="summary-card summary-card-error">
+                <span class="summary-label">Rejected</span>
+                <strong id="profile-count-rejected">0</strong>
+                <span id="profile-count-rejected-note" class="summary-note">Will not be used</span>
+              </article>
+              <article class="summary-card summary-card-warn">
+                <span class="summary-label">Conflicts</span>
+                <strong id="profile-count-unresolved">0</strong>
+                <span id="profile-count-unresolved-note" class="summary-note">Need a decision</span>
+              </article>
+              <article class="summary-card">
+                <span class="summary-label">Revisions</span>
+                <strong id="profile-count-superseded">0</strong>
+                <span id="profile-count-superseded-note" class="summary-note">Earlier versions</span>
+              </article>
+            </div>
+
+            <div class="filter-row" id="profile-filters" role="group" aria-label="Filter proposals"></div>
+
+            <p class="method-note">
+              Approving means you accept a fact proposed by the engine. It does not
+              prove the fact is true. Everything stays in this tab: refreshing
+              loses your decisions.
+            </p>
+
+            <div id="profile-groups" class="profile-groups"></div>
+
+            <div id="profile-empty" class="section-empty" hidden>
+              The profile engine returned no proposals. There is nothing to review.
+            </div>
+
+            <section class="report-section" aria-labelledby="profile-conflicts-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Conflicts</span>
+                  <h3 id="profile-conflicts-heading">Facts that do not fit</h3>
+                </div>
+                <span id="profile-conflicts-count" class="count"></span>
+              </div>
+              <div id="profile-conflicts" class="profile-conflicts"></div>
+              <div id="profile-conflicts-empty" class="section-empty" hidden>
+                The engine found no conflicts between the proposals.
+              </div>
+            </section>
+
+            <section class="report-section" aria-labelledby="profile-superseded-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">History</span>
+                  <h3 id="profile-superseded-heading">Earlier versions</h3>
+                </div>
+                <span id="profile-superseded-count" class="count"></span>
+              </div>
+              <div id="profile-superseded" class="profile-superseded"></div>
+              <div id="profile-superseded-empty" class="section-empty" hidden>
+                There are no earlier versions yet. They are created when you edit a fact.
+              </div>
+            </section>
+
+            <section class="report-section" aria-labelledby="profile-history-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Log</span>
+                  <h3 id="profile-history-heading">What you decided</h3>
+                </div>
+                <span id="profile-history-count" class="count"></span>
+              </div>
+              <div id="profile-history" class="profile-history"></div>
+              <div id="profile-history-empty" class="section-empty" hidden>
+                You have not made any decisions yet.
+              </div>
+            </section>
+          </div>
+
+          <div id="reconciliation-view" role="tabpanel" aria-labelledby="view-reconciliation" hidden>
+            <header class="report-head">
+              <div>
+                <p class="eyebrow">Step 3 · Consistency</p>
+                <h2 id="reconciliation-title" tabindex="-1">Compare what your documents say</h2>
+                <p id="reconciliation-subtitle" class="report-subtitle">
+                  Nothing has been compared yet.
+                </p>
+              </div>
+            </header>
+
+            <div class="profile-toolbar">
+              <button id="reconciliation-build" class="button button-primary button-inline" type="button">
+                Compare these documents
+              </button>
+              <button id="reconciliation-preview" class="button button-secondary button-inline" type="button" hidden disabled>
+                Load synthetic sample
+              </button>
+              <button id="reconciliation-preview-multi" class="button button-secondary button-inline" type="button" hidden disabled>
+                Load synthetic sample with three CVs
+              </button>
+              <button id="reconciliation-clear" class="button button-quiet button-inline" type="button" hidden>
+                Start over
+              </button>
+            </div>
+            <p id="reconciliation-hint" class="field-note">
+              The local Python engine calculates relationships and recommendations
+              from the quotes in your documents. This screen is read-only: it creates
+              no relationships, confirms no claim and transfers no claim-to-proposal
+              mapping or approval.
+            </p>
+
+            <p id="reconciliation-status" class="profile-status" role="status" aria-live="polite"></p>
+
+            <div id="reconciliation-warnings" class="warning-list" hidden></div>
+
+            <div id="reconciliation-results" hidden>
+            <p id="reconciliation-overview" class="overview-note"></p>
+
+            <div class="summary-grid reconciliation-summary" aria-label="Comparison summary">
+              <article class="summary-card">
+                <span class="summary-label">Documents compared</span>
+                <strong id="reconciliation-count-documents">0</strong>
+                <span class="summary-note">Sources compared</span>
+              </article>
+              <article class="summary-card">
+                <span class="summary-label">Source claims</span>
+                <strong id="reconciliation-count-claims">0</strong>
+                <span class="summary-note">Every claim keeps its exact quote</span>
+              </article>
+              <article class="summary-card summary-card-ok">
+                <span class="summary-label">Safe consolidations</span>
+                <strong id="reconciliation-count-consolidations">0</strong>
+                <span class="summary-note">Joined by the engine, no conflict</span>
+              </article>
+              <article class="summary-card summary-card-error">
+                <span class="summary-label">Conflicting pairs</span>
+                <strong id="reconciliation-count-conflicts">0</strong>
+                <span class="summary-note">Claims that do not agree</span>
+              </article>
+              <article class="summary-card summary-card-warn">
+                <span class="summary-label">Decisions to confirm</span>
+                <strong id="reconciliation-count-pending">0</strong>
+                <span class="summary-note">The engine does not decide for you</span>
+              </article>
+              <article class="summary-card summary-card-warn">
+                <span class="summary-label">Conflicts without a decision</span>
+                <strong id="reconciliation-count-unresolved">0</strong>
+                <span class="summary-note">No engine proposal</span>
+              </article>
+            </div>
+
+            <p class="method-note">
+              “Safe consolidations” are claim groups the engine joined because the
+              documents state the same thing: joining is neither proof nor approval.
+              “Decisions to confirm” are recommendations or conflicts that need your
+              judgement. The numbers do not overlap: a conflict may have a
+              recommendation, and then it counts in the fourth card.
+            </p>
+
+            <section class="report-section sources-section" aria-labelledby="reconciliation-sources-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Sources</span>
+                  <h3 id="reconciliation-sources-heading">Documents compared</h3>
+                </div>
+              </div>
+              <ul id="reconciliation-sources" class="source-list" aria-label="Documents compared"></ul>
+            </section>
+
+            <section class="report-section" aria-labelledby="attention-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Priority</span>
+                  <h3 id="attention-heading">Needs your attention</h3>
+                </div>
+                <span id="reconciliation-attention-count" class="count"></span>
+              </div>
+
+              <div class="attention-legend" aria-label="What each term means">
+                <p><strong>Recommendation</strong> · a suggestion from the engine. It is not a decision.</p>
+                <p><strong>Confirmation</strong> · your decision, recorded in Candidate Profile.</p>
+                <p><strong>Approval</strong> · marking a fact as valid in Profile. It does not happen on this screen.</p>
+              </div>
+
+              <p id="attention-disclaimer" class="attention-disclaimer">
+                This screen confirms and approves nothing. To decide, review the
+                proposal in Candidate Profile.
+              </p>
+
+              <div id="reconciliation-attention" class="attention-list"></div>
+              <div id="reconciliation-attention-empty" class="section-empty" hidden>
+                There are no conflicts or pending recommendations in these documents.
+              </div>
+            </section>
+
+            <section class="report-section" aria-labelledby="consolidated-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Joined facts</span>
+                  <h3 id="consolidated-heading">Consolidated information</h3>
+                </div>
+                <span id="reconciliation-consolidated-count" class="count"></span>
+              </div>
+              <p class="section-intro">
+                Each card brings together claims the documents state in the same
+                way. The original quotes remain available and nothing has been
+                approved.
+              </p>
+              <div id="reconciliation-consolidated" class="consolidated-list"></div>
+              <div id="reconciliation-consolidated-empty" class="section-empty" hidden>
+                There are no facts the engine can safely join.
+              </div>
+            </section>
+
+            <section class="report-section" aria-labelledby="findings-heading">
+              <div class="section-head">
+                <div>
+                  <span class="section-kicker">Remaining claims</span>
+                  <h3 id="findings-heading">Other claims detected</h3>
+                </div>
+                <span id="reconciliation-findings-count" class="count"></span>
+              </div>
+              <p class="section-intro">
+                Claims that are not already represented in a decision or a joined
+                group. Every source claim appears here or above, and its exact quote
+                remains available. Review proposals in Candidate Profile; this screen
+                approves nothing.
+              </p>
+              <ul id="reconciliation-findings" class="finding-list" aria-label="Remaining source claims"></ul>
+              <div id="reconciliation-findings-empty" class="section-empty" hidden>
+                Every source claim is already represented above.
+              </div>
+              <button id="reconciliation-open-profile" class="button button-secondary button-inline" type="button">
+                Open Candidate Profile
+              </button>
+            </section>
+
+            <details id="reconciliation-technical" class="limits tech-details">
+              <summary>See all data and technical details</summary>
+              <div class="limits-body">
+                <p class="tech-note">
+                  This section is for checking the result: identifiers, offsets,
+                  exact references, and comparators. Technical note: no approval
+                  or resolution is transferred between this report and the
+                  Candidate Profile.
+                </p>
+                <div id="reconciliation-groups" class="reconciliation-groups"></div>
+                <div id="reconciliation-empty" class="section-empty" hidden>
+                  No data to show with the current filter.
+                </div>
+              </div>
+            </details>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section id="tailor-view" role="tabpanel" aria-labelledby="view-tailor" hidden>
+        <header class="report-head">
+          <div>
+            <p class="eyebrow">Step 4 · Tailor CV</p>
+            <h2 id="tailor-title" tabindex="-1">Tailor your CV to a job posting</h2>
+            <p id="tailor-subtitle" class="report-subtitle">
+              Turn your approved facts into a job-tailored CV. Generation and export stay
+              disabled until the backend contracts are integrated.
+            </p>
+          </div>
+        </header>
+
+        <section id="tailor-readiness" class="report-section" aria-labelledby="tailor-readiness-heading">
+          <div class="section-head">
+            <div>
+              <span class="section-kicker">Profile readiness</span>
+              <h3 id="tailor-readiness-heading">What you can tailor today</h3>
+            </div>
+          </div>
+          <div id="tailor-readiness-body" class="tailor-readiness"></div>
+        </section>
+
+        <section id="tailor-job" class="report-section" aria-labelledby="tailor-job-heading">
+          <div class="section-head">
+            <div>
+              <span class="section-kicker">Job posting</span>
+              <h3 id="tailor-job-heading">Paste the job description</h3>
+            </div>
+          </div>
+          <p class="section-intro">
+            Copy the complete job posting from LinkedIn or another job site and paste it
+            here. Only the text you paste is used; nothing is sent to a service.
+          </p>
+          <div class="proposal-actions">
+            <label class="button button-secondary button-inline" for="tailor-import-approved">
+              Import approved profile
+            </label>
+            <input id="tailor-import-approved" type="file" accept="application/json" hidden />
+            <span id="tailor-approved-status" class="field-note"></span>
+          </div>
+          <form id="tailor-job-form" class="tailor-job-form">
+            <label class="field-label" for="tailor-job-title">Job title (optional)</label>
+            <input id="tailor-job-title" class="input" type="text" autocomplete="off" maxlength="200" />
+
+            <label class="field-label" for="tailor-job-company">Company (optional)</label>
+            <input id="tailor-job-company" class="input" type="text" autocomplete="off" maxlength="200" />
+
+            <label class="field-label" for="tailor-job-location">Location (optional)</label>
+            <input id="tailor-job-location" class="input" type="text" autocomplete="off" maxlength="200" />
+
+            <label class="field-label" for="tailor-job-text">Job posting (required)</label>
+            <textarea id="tailor-job-text" class="textarea" rows="14" spellcheck="false" maxlength="20000"
+              placeholder="Paste the full job description here."></textarea>
+            <p id="tailor-job-status" class="field-note" role="status" aria-live="polite"></p>
+
+            <div class="proposal-actions">
+              <button id="tailor-generate" class="button button-primary button-inline" type="button" disabled>
+                Generate tailored CV
+              </button>
+            </div>
+            <p class="field-note">
+              Generation is not available yet: the backend generation contract is not
+              integrated. No CV is generated and no result is faked.
+            </p>
+          </form>
+        </section>
+
+        <section id="tailor-editor" class="report-section" aria-labelledby="tailor-editor-heading">
+          <div class="section-head">
+            <div>
+              <span class="section-kicker">CV draft</span>
+              <h3 id="tailor-editor-heading">Editor</h3>
+            </div>
+            <span id="tailor-draft-status" class="count"></span>
+          </div>
+          <div id="tailor-editor-body" class="tailor-editor"></div>
+        </section>
+
+        <section id="tailor-preview" class="report-section" aria-labelledby="tailor-preview-heading">
+          <div class="section-head">
+            <div>
+              <span class="section-kicker">Preview</span>
+              <h3 id="tailor-preview-heading">CV preview</h3>
+            </div>
+          </div>
+          <div id="tailor-preview-body" class="tailor-preview"></div>
+        </section>
+
+        <section id="tailor-export" class="report-section" aria-labelledby="tailor-export-heading">
+          <div class="section-head">
+            <div>
+              <span class="section-kicker">Export</span>
+              <h3 id="tailor-export-heading">Download</h3>
+            </div>
+          </div>
+          <div class="proposal-actions">
+            <button id="tailor-export-pdf" class="button button-secondary button-inline" type="button" disabled>
+              Download PDF
+            </button>
+            <button id="tailor-export-docx" class="button button-secondary button-inline" type="button" disabled>
+              Download DOCX
+            </button>
+          </div>
+          <p class="field-note">
+            Export is disabled until a real exporter is integrated, the draft is
+            validated, and every included fact has passed final review.
+          </p>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>JobLens · document review · <span id="footer-data-mode">local, in-memory session</span></p>
+      <p>No scores · no persistence · every claim keeps its quote</p>
+    </footer>
+  </div>
+
+  <noscript>
+    <p class="noscript">This screen needs JavaScript to analyse documents and show the results.</p>
+  </noscript>
+
+  <script src="./api-adapter.js" defer></script>
+  <script src="./profile-adapter.js" defer></script>
+  <script src="./profile-review.js" defer></script>
+  <script src="./reconciliation-adapter.js" defer></script>
+  <script src="./tailor-adapter.js" defer></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>

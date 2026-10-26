@@ -1,200 +1,154 @@
-# JobLens Public Demo
+# JobLens — Turn multiple CVs into one truthful resume tailored to a specific job
 
-**Evidence-first job analysis.** Compare a posting with an attested evidence bank and see
-what is documented, what is only a tag, what is missing, and what still needs a human.
+Upload your existing PDF/DOCX CVs, paste a job posting, review a tailored draft,
+and download a real PDF or DOCX. Everything runs locally. No account, cloud model,
+LinkedIn connection or Ollama installation is required. Contact details found in
+your CVs are prefilled as editable provisional values, and “Why this content?”
+explains the actual inclusion, omission and conflict decisions.
 
-This is a small, self-contained public demo. The browser talks to a local Python process;
-the report is computed by the real evaluator, not embedded as mock JSON. It does not
-produce a hiring score or a probability of getting an interview.
+## Start locally
 
-**Python 3.11+ · no runtime dependencies · synthetic data only · loopback only**
-
-![JobLens desktop overview](docs/screenshots/overview-desktop.png)
-
-## What the demo shows
-
-- **Documented** requirements backed by an exact synthetic claim text, reference id and
-  source path shown in the report.
-- **Partial** matches where the skill appears only as a tag and needs verification.
-- **Evidence gaps** that are shown as gaps, not as proof that a candidate lacks the ability.
-- **Manual-review conditions** for degree, work authorization, production depth, location
-  and years of experience.
-- **Context-only mentions** that are visible but excluded from the coverage tally.
-- **Two fictional candidates and three synthetic postings**, switchable from the UI. Changing
-  the candidate changes the real Python result.
-
-The interface is responsive, keyboard-friendly and uses no external assets or fonts. The
-bank stays server-side; during setup the browser receives candidate metadata and synthetic
-postings, and after analysis it receives the selected report, including the exact synthetic
-evidence claims and references used in that report.
-
-![Evidence report](docs/screenshots/report-desktop.png)
-
-## Quick start
-
-From the project root:
+Python **3.11+** and a source checkout are required.
 
 ```bash
-python3 run_demo.py
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m joblens_public --port 8767
 ```
 
-That is the whole demo. It starts a loopback server on a free port, opens the browser and
-prints the URL. Stop it with `Ctrl+C`.
+Open **http://127.0.0.1:8767/**. On Windows, activate `.venv\Scripts\activate`
+and use `python run_demo.py --port 8767` instead of the environment-variable command.
+Stop the server with Ctrl+C. The app binds to loopback only; do not deploy this local
+application behind a public proxy.
 
-To use a fixed port:
+The source launcher `python3 run_demo.py --port 8767` is also supported after installing
+the dependencies. A wheel is **not a supported installation method**: it
+**does not include all runtime resources** (`web/` and `data/`). Keep the source tree.
+Runtime dependencies are pypdf, ReportLab and python-docx; pytest and Ruff are development tools.
 
-```bash
-python3 run_demo.py --port 8765
-```
+## Use it
 
-No `pip install` is required for the demo: `run_demo.py` adds `src/` to the Python path and
-the app uses only the standard library.
+1. Upload **1–5 PDF/DOCX CVs**. Reading starts automatically.
+2. Paste the full posting from LinkedIn, Indeed or any careers page.
+3. Select **Generate my CV**.
+4. Review the prefilled contact details, edit the wording, remove unwanted entries or reorder sections.
+5. Confirm the exact final content, then select **Download PDF** or **Download DOCX**.
 
-### Packaging status
+Supported contact values are filled into editable fields but remain provisional until you
+confirm the exact CV. Conflicting values are never chosen automatically: the field stays
+empty, shows the alternatives and their source quotations, and asks you to enter the right
+value. Missing details also stay empty. The full name is required before confirmation.
 
-Run this release from the source tree with `python3 run_demo.py`. The current wheel is **not a
-supported installation method** for this release because it does not include all runtime
-resources (the `web/` assets and synthetic `data/` banks). The editable development install
-below is only for pytest and Ruff; it does not make an installed wheel self-contained.
+Contradictory or uncertain details are omitted with a notice. Missing job requirements
+appear outside the CV. They never become candidate skills. Original quotations remain
+available through “View original wording.” The optional advanced evidence tools at
+`/workspace/` retain the detailed profile and consistency review, including explicit
+private profile save/import. They are not required for the main journey.
 
-## How the live path works
+## What makes it different
+
+- **Evidence provenance:** source document, paragraph/page, exact quotation and Unicode offsets.
+- **Conservative consolidation:** compatible proposals merge; disputed details are omitted from automatic drafting.
+- **Provisional first:** extraction and reconciliation do not create approvals. A deterministic generator ranks source-backed information against the pasted posting.
+- **Provisional contact prefill:** supported name, e-mail, phone, location, GitHub, LinkedIn and portfolio values are applied to editable fields. Conflicts are never selected, missing values stay empty, and final confirmation covers the contact details.
+- **Explainable decisions:** “Why this content?” reports real backend counts, includes, omissions, conflicts, alternatives, source documents and unmet job requirements. It uses no invented percentages.
+- **Human confirmation:** a process-local signature binds confirmation to the exact CV, including contact details and section order. Editing invalidates it.
+- **Stale-response safety:** editing, reordering, removing an item, generating again or selecting **Start over** makes any in-flight confirmation or download response obsolete, so an old reply cannot restore confirmation or trigger an old file.
+- **Honest edits:** changed wording requires explicit candidate attestation. It is not relabelled as verified documentary evidence.
+- **Real exports:** one single-column, A4-friendly template, rendered with ReportLab and python-docx. Text is selectable; internal IDs and review warnings are excluded.
+
+No model is used by the web flow. An optional local Ollama rewriting adapter exists in
+the Python library, but is not enabled by the main application and is not required.
+Deterministic drafting and local LLM rewriting are separate capabilities.
+
+## Privacy and security
+
+Documents and decisions are processed in memory. No request bodies or CV text are logged.
+The application makes no external data requests. Static files use an explicit allowlist;
+source files, fixtures and private profiles cannot be fetched through application routes.
+Requests enforce loopback Host, same Origin, a request marker and size/time limits.
+PDF/DOCX downloads use fixed safe filenames and `Cache-Control: no-store`.
+
+Save personal files **outside this repository**. Downloaded files and advanced exported
+profiles are private, unencrypted files under your control; a portable profile includes
+source text. Reloading clears browser state. Restarting the server invalidates review
+receipts; regenerate, or reimport and explicitly revalidate an advanced profile.
+
+A valid source quote proves provenance, not real-world truth. JobLens does not verify
+credentials or employment. Candidate attestation remains the candidate's responsibility.
+
+## Architecture
 
 ```text
-Browser (HTML/CSS/JS)
-  |
-  |  GET /api/bootstrap
-  |    -> fictional candidate metadata + synthetic postings
-  |
-  |  POST /api/analyze  { candidate_id, job }
-  |    -> Python request validation
-  |    -> real_fit.evaluate_real_fit(bank, posting)
-  |    -> JSON report
-  v
-127.0.0.1 only
+Browser → local HTTP → PDF/DOCX extraction → proposals + deterministic reconciliation
+                     → provisional job-tailored draft → exact-content confirmation
+                     → validated in-memory PDF/DOCX rendering
 ```
 
-The evidence bank is never sent to the browser. The endpoint returns a report produced by
-the same evaluator modules vendored in `src/joblens_public/core/` (`models.py`,
-`extraction.py`, `real_fit.py`). The public snapshot does not need a private checkout to run.
+See [the HTTP and review contract](docs/release-architecture.md). The earlier synthetic
+job-analysis demo remains available at `/demo/`, and its API endpoints remain supported.
+Existing screenshots in `docs/screenshots/` depict that historical demo, not the new main UI.
 
-The server validates the loopback `Host`. Analysis requests must also send an `Origin`
-header equal to either `http://127.0.0.1:<port>` or `http://localhost:<port>` for the
-server's port, plus a custom request token, the JSON content type and a bounded body size.
-It has no persistence, no analytics, no cloud calls and no request logging of pasted text.
-Responses carry a restrictive CSP and no-store headers.
+## Tests and synthetic demonstration
 
-## Synthetic data
+The only publishable PDF/DOCX samples are `web/samples/alex-rivera-cv.pdf`
+and `web/samples/alex-rivera-cv-2.docx`. Both contain fictional Alex Rivera
+data and power **Try a sample** through the real backend. Other CVs, profiles
+and generated exports must stay outside the public source release.
 
-All names, claims, companies and postings are fictional and exist only to demonstrate the
-report. They are not real candidates and not real job openings.
-
-| Candidate | Synthetic focus | File |
-| --- | --- | --- |
-| Alex Rivera | Retrieval, LLM evaluation, NLP, statistics | `data/candidates/alex-rivera.json` |
-| Jordan Lee | Python, SQL, pandas, reproducible analysis, Docker | `data/candidates/jordan-lee.json` |
-
-| Posting | Fictional company | What it exercises |
-| --- | --- | --- |
-| Junior AI Engineer | Aster Studio | Mostly documented required skills, optional gaps, review gates |
-| Data Analyst | Harbor Finance | Strong data fit for one candidate, gaps for the other |
-| ML Platform Engineer | Orbit Systems | Infrastructure gaps, optional AI skills, on-site and years gates |
-
-The examples are deterministic with the committed data. For example, Alex + Junior AI Engineer
-returns 5/5 documented required skills, 0/2 preferred skills, and `REVIEW_REQUIRED` because the
-posting still contains degree, authorization, production and experience gates. The tests lock
-these outcomes so the README cannot drift silently.
-
-## Tests and lint
-
-Install the development extras once (or use an existing environment with pytest and Ruff):
 
 ```bash
-python3 -m pip install -e ".[dev]"
+python -m pytest -q -p no:cacheprovider
+node --test tests/ui/*.test.mjs
+python -m pytest tests/test_simple_flow.py -q -p no:cacheprovider
+PYTHONPATH=src python3 -m evaluation.run_evaluation --output evaluation/results.json
 ruff check .
-pytest -q
 ```
 
-The tests cover:
+`tests/test_integrated_release.py` runs two fictional CVs through the real local HTTP
+pipeline with all seven contact fields, a conflicting-contact case and an unsupported
+Kubernetes requirement. It confirms the exact draft, inspects the actual PDF and DOCX
+content and hyperlinks, and verifies that editing a contact invalidates the export.
+`tests/test_simple_flow.py` starts the real server and runs the main-page controller
+against a DOM test double, including stale confirmation replies after an edit and after
+**Start over**. These are automated tests, not manual browser tests.
 
-- data validation and the synthetic-data contract;
-- evaluator behavior, including candidate switching and "gap is not disqualification";
-- the loopback endpoint, real Python results, origin/host/token rejection and CSP headers;
-- release-safety checks for private markers, inline scripts/styles and the README contract.
-
-## Screenshots
-
-The committed screenshots are real captures of the running app at exact viewport sizes. The
-report screenshots come from `POST /api/analyze`; the query string only opens a deterministic
-state, it does not supply a result.
-
-| Image | Viewport | What it shows |
-| --- | --- | --- |
-| `docs/screenshots/overview-desktop.png` | 1440 × 1000 | Landing page and controls |
-| `docs/screenshots/report-desktop.png` | 1440 × 1600 | Report header, summary, required and preferred skills |
-| `docs/screenshots/review-desktop.png` | 1440 × 1000 | Gaps, context-only mentions and human-review conditions |
-| `docs/screenshots/overview-mobile.png` | 390 × 844 (DPR 2) | Responsive candidate and posting controls |
-| `docs/screenshots/report-mobile.png` | 390 × 900 (DPR 2) | Mobile report header and summary |
-
-![Human-review conditions](docs/screenshots/review-desktop.png)
-
-![Mobile overview](docs/screenshots/overview-mobile.png)
-
-### Regenerate the screenshots
-
-Start the demo on the default screenshot port, then run the optional Chrome DevTools script:
-
-```bash
-PYTHONPATH=src python3 -m joblens_public --port 8765
-node scripts/capture_screenshots.mjs
-```
-
-The script needs Node 22+ and a local Chrome/Chromium installation. It launches a temporary
-headless profile, sets exact device metrics, waits for the Python report and writes the five
-PNGs. It does not edit the UI or inject results. See
-[`docs/screenshots/README.md`](docs/screenshots/README.md) for manual capture instructions and
-the authenticity rules.
-
-## Project layout
-
-```text
-JobLens-Public/
-├── run_demo.py                 # one-command local demo
-├── src/joblens_public/
-│   ├── core/                   # vendored evaluator: models, extraction, real_fit
-│   ├── data.py                 # validated synthetic data loader
-│   ├── webapp.py               # loopback server and /api endpoints
-│   └── cli.py                  # python -m joblens_public
-├── web/                        # semantic HTML, responsive CSS, vanilla JS
-├── data/                       # fictional candidates and synthetic postings
-├── tests/                      # focused pytest suite and release-safety checks
-├── scripts/capture_screenshots.mjs
-└── docs/screenshots/           # authentic screenshots and capture notes
-```
+The synthetic evaluation covers 20 scenarios, including PDF/DOCX token parity, conflict
+omission, review enforcement and unsupported-requirement leakage. Metrics describe this
+fixture set only; they are not a hallucination rate or an ATS benchmark. Output is written
+only to ignored `.integration-verification/` and `evaluation/results.json`. No real
+personal documents are included. Node is needed for integration tests, not to run the app.
 
 ## Limitations
 
-JobLens is deliberately narrow. It is an evidence-review aid, not an ATS and not a hiring
-predictor.
-
-- The evaluator uses a small, explicit skill vocabulary. A requirement it does not recognise
-  is not extracted; it remains for manual review. For example, "agent frameworks" in the
-  synthetic AI posting is not counted.
-- Coverage means *documented evidence in the fictional bank*, not ability, seniority or
-  likelihood of an interview. The report shows the exact synthetic claim text plus its
-  reference id and source path where a claim is available.
-- The current wheel does not include all runtime resources and is not supported for this
-  release. Run from the source tree with `python3 run_demo.py`.
-- The bank is attested synthetic data. The demo does not verify claims or read a real CV.
-- Degree, authorization, production depth, location and years of experience are reported as
-  review gates, never as hidden scores.
-- This snapshot has no CV editing, no application submission, no cloud deployment and no
-  persistence.
-- The larger private project also contains an optional local Ollama tool-calling agent with an
-  allowlist, a step limit and human approval. It is **not** part of this snapshot. This demo
-  makes no LangGraph or LangChain claim.
+- Text-based PDF and DOCX only; no OCR. Complex columns, tables and unusual layouts need careful review.
+- Extraction uses a bounded English vocabulary and may omit information. No automatic translation.
+- No scraping, LinkedIn account connection, cloud hosting, database or background persistence.
+- Conservative omission may discard useful ambiguous information. Check the sources before adding it yourself.
+- One export template is provided. No fidelity to an unavailable LaTeX reference is claimed.
+- Contact prefill is a suggestion layer over bounded extraction. It is not identity verification; review every field. A field with conflicting or multiple values stays empty for you to resolve.
+- Decision explanations are plain-English renderings of deterministic generation rules. They are not model reasoning, confidence estimates or proof that a claim is true.
+- The preview is an editable content view, not a pixel-identical pagination simulator for Word/PDF.
+- Signatures validate the current local process and exact reviewed content, not the identity of the human making a declaration.
+- A wheel is **not a supported installation method**. The built wheel **does not include all runtime resources** (`web/` and `data/`) and the launcher fails with `No candidate banks found`; use the source checkout and `python3 run_demo.py`.
+- Safari upload/download acceptance remains a manual release check.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT; see [LICENSE](LICENSE). Owner approval is required before publication. This checkout
+is a release candidate, not a published package. Third-party dependencies retain their own licenses.
 
-The synthetic candidates, postings and screenshots are included for demonstration only.
+### Fact-preservation demonstration
+
+`tests/fact_preservation_fixtures.py` contains two small fictional Alex Rivera CVs
+and a separate richer Morgan Example case. These are equivalent textual fixtures
+for the reported manual scenario, not byte-identical copies of the original PDFs.
+
+Run `python -m pytest tests/test_fact_preservation.py -q -p no:cacheprovider`.
+The real HTTP pipeline creates PDF/DOCX inputs and outputs under ignored
+`.integration-verification/fact-preservation/`, together with a source/selection/
+export trace. The small case retains Python, education and separate supported
+Software Engineer contributions while omitting disputed English levels and Atlas
+content. The richer case exercises employer, dates, project details and metrics.
+AWS certification alone is not treated as a practical AWS skill.

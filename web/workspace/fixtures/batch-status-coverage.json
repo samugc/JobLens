@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.1",
+  "transport_version": "1.0",
+  "job_id": "job-synthetic-coverage",
+  "batch": {
+    "status": "partial",
+    "document_count": 4,
+    "total_bytes": 41984,
+    "status_counts": {
+      "extracted": 1,
+      "partial": 0,
+      "empty": 0,
+      "scanned_pdf": 0,
+      "encrypted": 0,
+      "malformed": 1,
+      "unsupported_format": 1,
+      "too_large": 1
+    },
+    "limits": {
+      "max_documents": 5,
+      "max_file_bytes": 10485760,
+      "max_batch_bytes": 26214400,
+      "max_text_chars": 200000,
+      "max_pdf_pages": 100,
+      "max_docx_paragraphs": 20000,
+      "max_docx_xml_bytes": 10485760
+    },
+    "error": null
+  },
+  "documents": [
+    {
+      "document_id": "doc-synthetic-mismatch-0",
+      "index": 0,
+      "filename": "sample-named-pdf.pdf",
+      "format": "docx",
+      "status": "extracted",
+      "text": "Experience\nContent parser won over the filename extension.",
+      "segments": [
+        {
+          "locator": { "kind": "paragraph", "paragraph": 1, "section": "Experience" },
+          "text": "Experience\nContent parser won over the filename extension."
+        }
+      ],
+      "warnings": [
+        {
+          "code": "format_mismatch",
+          "message": "The filename extension does not match the detected document content."
+        }
+      ],
+      "metadata": { "size_bytes": 8192, "page_count": null, "paragraph_count": 8 }
+    },
+    {
+      "document_id": "doc-synthetic-malformed-1",
+      "index": 1,
+      "filename": "sample-broken.pdf",
+      "format": "pdf",
+      "status": "malformed",
+      "text": "",
+      "segments": [],
+      "warnings": [
+        {
+          "code": "malformed_document",
+          "message": "The document could not be read as a valid PDF or DOCX file."
+        }
+      ],
+      "metadata": { "size_bytes": 12288, "page_count": null, "paragraph_count": null }
+    },
+    {
+      "document_id": "doc-synthetic-legacy-2",
+      "index": 2,
+      "filename": "sample-legacy.doc",
+      "format": "unknown",
+      "status": "unsupported_format",
+      "text": "",
+      "segments": [],
+      "warnings": [
+        {
+          "code": "legacy_doc",
+          "message": "Legacy Word .doc files are not supported; save the file as DOCX or PDF."
+        }
+      ],
+      "metadata": { "size_bytes": 15360, "page_count": null, "paragraph_count": null }
+    },
+    {
+      "document_id": "doc-synthetic-too-large-3",
+      "index": 3,
+      "filename": "sample-big.pdf",
+      "format": "pdf",
+      "status": "too_large",
+      "text": "",
+      "segments": [],
+      "warnings": [
+        {
+          "code": "document_too_large",
+          "message": "The document exceeds the 10485760-byte size limit."
+        }
+      ],
+      "metadata": { "size_bytes": 6144, "page_count": null, "paragraph_count": null }
+    }
+  ]
+}

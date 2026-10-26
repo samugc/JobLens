@@ -1,0 +1,643 @@
+{
+  "profile_schema_version": "0.1",
+  "parser_schema_version": "1.1",
+  "job_id": "job_synthetic_reconciliation",
+  "documents": [
+    {
+      "document_id": "doc_synthetic_cv_2024",
+      "index": 0,
+      "filename": "candidate-cv-2024.pdf",
+      "status": "extracted",
+      "format": "pdf",
+      "segment_count": 6,
+      "text_length": 338
+    },
+    {
+      "document_id": "doc_synthetic_cv_2019",
+      "index": 1,
+      "filename": "candidate-cv-2019.pdf",
+      "status": "extracted",
+      "format": "pdf",
+      "segment_count": 5,
+      "text_length": 151
+    },
+    {
+      "document_id": "doc_synthetic_letter",
+      "index": 2,
+      "filename": "candidate-letter.docx",
+      "status": "extracted",
+      "format": "docx",
+      "segment_count": 3,
+      "text_length": 76
+    }
+  ],
+  "proposals": [
+    {
+      "proposal_id": "prop_8bebcafb87043aaa",
+      "category": "certification",
+      "value": {
+        "name": "aws certified solutions architect"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 5,
+          "locator": {
+            "kind": "page",
+            "page": 6
+          },
+          "quote": "AWS Certified Solutions Architect",
+          "start": 15,
+          "end": 48,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_aad0beff2dabbfb2",
+      "category": "education",
+      "value": {
+        "level": "bachelor",
+        "field": "computer science"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 3,
+          "locator": {
+            "kind": "page",
+            "page": 4
+          },
+          "quote": "BSc in Computer Science",
+          "start": 10,
+          "end": 33,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_cv_2019",
+          "segment_index": 3,
+          "locator": {
+            "kind": "page",
+            "page": 4
+          },
+          "quote": "BSc in Computer Science",
+          "start": 10,
+          "end": 33,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_6c2c1f1deda248b3",
+      "category": "education",
+      "value": {
+        "level": "master",
+        "field": "computer science"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 3,
+          "locator": {
+            "kind": "page",
+            "page": 4
+          },
+          "quote": "MSc in Computer Science",
+          "start": 34,
+          "end": 57,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_f61e456dbe3aa2d0",
+      "category": "education",
+      "value": {
+        "level": "master",
+        "field": "data engineering"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 3,
+          "locator": {
+            "kind": "page",
+            "page": 4
+          },
+          "quote": "MSc Data Engineering",
+          "start": 58,
+          "end": 78,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_1d480c779a1f4a0f",
+      "category": "experience",
+      "value": {
+        "role": "data engineer"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2019",
+          "segment_index": 1,
+          "locator": {
+            "kind": "page",
+            "page": 2
+          },
+          "quote": "Data Engineer",
+          "start": 11,
+          "end": 24,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_6e866e4b20311272",
+      "category": "experience",
+      "value": {
+        "role": "senior data engineer"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 1,
+          "locator": {
+            "kind": "page",
+            "page": 2
+          },
+          "quote": "Senior Data Engineer",
+          "start": 11,
+          "end": 31,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_87e5e1f3c1410339",
+      "category": "experience",
+      "value": {
+        "role": "platform engineer"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 1,
+          "locator": {
+            "kind": "page",
+            "page": 2
+          },
+          "quote": "Platform Engineer",
+          "start": 53,
+          "end": 70,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_fdb78ede6c09f28e",
+      "category": "language",
+      "value": {
+        "language": "english",
+        "stated_level": "b2"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2019",
+          "segment_index": 4,
+          "locator": {
+            "kind": "page",
+            "page": 5
+          },
+          "quote": "English (B2)",
+          "start": 10,
+          "end": 22,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": [
+        "conf_432dd4b794242232"
+      ]
+    },
+    {
+      "proposal_id": "prop_5d140fe600f64396",
+      "category": "language",
+      "value": {
+        "language": "english",
+        "stated_level": "c1"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 4,
+          "locator": {
+            "kind": "page",
+            "page": 5
+          },
+          "quote": "English (C1)",
+          "start": 10,
+          "end": 22,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": [
+        "conf_432dd4b794242232"
+      ]
+    },
+    {
+      "proposal_id": "prop_94751e877813cb87",
+      "category": "language",
+      "value": {
+        "language": "spanish",
+        "stated_level": "b2"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 4,
+          "locator": {
+            "kind": "page",
+            "page": 5
+          },
+          "quote": "Spanish (B2)",
+          "start": 24,
+          "end": 36,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_4f313153d9067921",
+      "category": "language",
+      "value": {
+        "language": "english",
+        "stated_level": null
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_letter",
+          "segment_index": 1,
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 2
+          },
+          "quote": "English",
+          "start": 10,
+          "end": 17,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": [
+        "conf_432dd4b794242232"
+      ]
+    },
+    {
+      "proposal_id": "prop_01e97723f14a37f3",
+      "category": "language",
+      "value": {
+        "language": "german",
+        "stated_level": "b1"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_letter",
+          "segment_index": 1,
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 2
+          },
+          "quote": "German (B1)",
+          "start": 19,
+          "end": 30,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_e35a8f28b9c09571",
+      "category": "project",
+      "value": {
+        "name": "ledger dashboard"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 2,
+          "locator": {
+            "kind": "page",
+            "page": 3
+          },
+          "quote": "Ledger Dashboard",
+          "start": 9,
+          "end": 25,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_cv_2019",
+          "segment_index": 2,
+          "locator": {
+            "kind": "page",
+            "page": 3
+          },
+          "quote": "Ledger Dashboard",
+          "start": 9,
+          "end": 25,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_61a123d81292bf57",
+      "category": "project",
+      "value": {
+        "name": "invoice tracker"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 2,
+          "locator": {
+            "kind": "page",
+            "page": 3
+          },
+          "quote": "Invoice Tracker",
+          "start": 26,
+          "end": 41,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_letter",
+          "segment_index": 2,
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 3
+          },
+          "quote": "Invoice Tracker",
+          "start": 9,
+          "end": 24,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_6caacb76a81e1e5b",
+      "category": "skill",
+      "value": {
+        "name": "python"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 0,
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "quote": "Python",
+          "start": 7,
+          "end": 13,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_cv_2019",
+          "segment_index": 0,
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "quote": "Python",
+          "start": 7,
+          "end": 13,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_letter",
+          "segment_index": 0,
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 1
+          },
+          "quote": "Python",
+          "start": 7,
+          "end": 13,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_7cf0da85396b9451",
+      "category": "skill",
+      "value": {
+        "name": "sql"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 0,
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "quote": "SQL",
+          "start": 15,
+          "end": 18,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_cv_2019",
+          "segment_index": 0,
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "quote": "SQL",
+          "start": 15,
+          "end": 18,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_3e6fd44a22f8d26e",
+      "category": "skill",
+      "value": {
+        "name": "docker"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 0,
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "quote": "Docker",
+          "start": 20,
+          "end": 26,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_cv_2019",
+          "segment_index": 0,
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "quote": "Docker",
+          "start": 20,
+          "end": 26,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_91bcc162743ab129",
+      "category": "skill",
+      "value": {
+        "name": "kubernetes"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 0,
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "quote": "Kubernetes",
+          "start": 28,
+          "end": 38,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_16fba925e7388970",
+      "category": "skill",
+      "value": {
+        "name": "tableau"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 0,
+          "locator": {
+            "kind": "page",
+            "page": 1
+          },
+          "quote": "Tableau",
+          "start": 40,
+          "end": 47,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_letter",
+          "segment_index": 0,
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 1
+          },
+          "quote": "Tableau",
+          "start": 15,
+          "end": 22,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_569f2b7edf337805",
+      "category": "skill",
+      "value": {
+        "name": "data engineering"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 3,
+          "locator": {
+            "kind": "page",
+            "page": 4
+          },
+          "quote": "Data Engineering",
+          "start": 62,
+          "end": 78,
+          "support": "keyword_mention"
+        }
+      ],
+      "conflicts": []
+    },
+    {
+      "proposal_id": "prop_33c0baefa3ce7833",
+      "category": "skill",
+      "value": {
+        "name": "aws"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_2024",
+          "segment_index": 5,
+          "locator": {
+            "kind": "page",
+            "page": 6
+          },
+          "quote": "AWS",
+          "start": 15,
+          "end": 18,
+          "support": "keyword_mention"
+        }
+      ],
+      "conflicts": []
+    }
+  ],
+  "conflicts": [
+    {
+      "conflict_id": "conf_432dd4b794242232",
+      "kind": "conflicting_stated_level",
+      "category": "language",
+      "proposal_ids": [
+        "prop_4f313153d9067921",
+        "prop_5d140fe600f64396",
+        "prop_fdb78ede6c09f28e"
+      ],
+      "message": "The documents state different levels for the language english."
+    }
+  ],
+  "warnings": []
+}

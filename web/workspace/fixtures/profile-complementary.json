@@ -1,0 +1,64 @@
+{
+  "profile_schema_version": "0.1",
+  "parser_schema_version": "1.1",
+  "job_id": "job_synthetic_profile",
+  "documents": [
+    {
+      "document_id": "doc_synthetic_cv_0",
+      "index": 0,
+      "filename": "synthetic-cv.pdf",
+      "status": "extracted",
+      "format": "pdf",
+      "segment_count": 6,
+      "text_length": 433
+    },
+    {
+      "document_id": "doc_synthetic_letter_1",
+      "index": 1,
+      "filename": "synthetic-letter.docx",
+      "status": "extracted",
+      "format": "docx",
+      "segment_count": 3,
+      "text_length": 127
+    }
+  ],
+  "proposals": [
+    {
+      "proposal_id": "prop_9b555298a80427cf",
+      "category": "project",
+      "value": {
+        "name": "ledger dashboard"
+      },
+      "status": "proposed",
+      "evidence": [
+        {
+          "document_id": "doc_synthetic_cv_0",
+          "segment_index": 2,
+          "locator": {
+            "kind": "page",
+            "page": 3
+          },
+          "quote": "Ledger Dashboard",
+          "start": 9,
+          "end": 25,
+          "support": "explicit_claim"
+        },
+        {
+          "document_id": "doc_synthetic_letter_1",
+          "segment_index": 2,
+          "locator": {
+            "kind": "paragraph",
+            "paragraph": 3
+          },
+          "quote": "Ledger Dashboard",
+          "start": 9,
+          "end": 25,
+          "support": "explicit_claim"
+        }
+      ],
+      "conflicts": []
+    }
+  ],
+  "conflicts": [],
+  "warnings": []
+}

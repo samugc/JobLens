@@ -52,8 +52,9 @@ def test_ui_and_assets_are_served(web_server):
     status, headers, html = request(port, "GET", "/")
     assert status == 200
     assert b"JobLens" in html
-    assert b"Analyze evidence" in html
-    assert b"/assets/app.js" in html
+    assert b"Generate my CV" in html
+    assert b"Analyze evidence" in request(port, "GET", "/demo/")[2]
+    assert b"/simple.js" in html
     assert "no-store" in headers.get("Cache-Control")
     assert "script-src 'self'" in headers.get("Content-Security-Policy")
 

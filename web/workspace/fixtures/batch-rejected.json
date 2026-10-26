@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.1",
+  "transport_version": "1.0",
+  "job_id": "job-synthetic-rejected",
+  "batch": {
+    "status": "rejected",
+    "document_count": 0,
+    "total_bytes": 0,
+    "status_counts": {
+      "extracted": 0,
+      "partial": 0,
+      "empty": 0,
+      "scanned_pdf": 0,
+      "encrypted": 0,
+      "malformed": 0,
+      "unsupported_format": 0,
+      "too_large": 0
+    },
+    "limits": {
+      "max_documents": 5,
+      "max_file_bytes": 10485760,
+      "max_batch_bytes": 26214400,
+      "max_text_chars": 200000,
+      "max_pdf_pages": 100,
+      "max_docx_paragraphs": 20000,
+      "max_docx_xml_bytes": 10485760
+    },
+    "error": {
+      "code": "empty_batch",
+      "message": "A batch must contain at least one document."
+    }
+  },
+  "documents": []
+}

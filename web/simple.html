@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="JobLens turns your existing CVs into one truthful, job-tailored CV. Review every line before you download.">
+  <title>JobLens · Your next CV</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/simple.css">
+  <script defer src="/workspace/api-adapter.js"></script>
+  <script defer src="/workspace/profile-adapter.js"></script>
+  <script defer src="/simple.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <div class="page-shell">
+    <header class="masthead">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">JL</span>
+        <span class="brand-copy">
+          <strong>JobLens</strong>
+          <small>Your next CV</small>
+        </span>
+      </a>
+      <div class="masthead-meta">
+        <span class="privacy-line"><span class="live-dot" aria-hidden="true"></span>Private. Local. Yours.</span>
+        <a class="quiet-link" href="/workspace/">Advanced evidence tools</a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="create" class="screen create-screen" aria-labelledby="create-title">
+        <header class="hero">
+          <p class="eyebrow">One CV, tailored to the job you want</p>
+          <h1 id="create-title" tabindex="-1">Your experience.<br><em>Your next opportunity.</em></h1>
+          <p class="lead">Bring your existing CVs. Paste the job. Get one truthful CV you can review, edit and download.</p>
+          <p class="privacy-note"><span class="live-dot" aria-hidden="true"></span>Files are read by the local server on this computer and processed in memory. Nothing is persisted or sent to a cloud service.</p>
+        </header>
+
+        <div class="create-grid">
+          <section class="card upload-card" aria-labelledby="upload-heading">
+            <div class="card-head">
+              <span class="step" aria-hidden="true">01</span>
+              <div>
+                <h2 id="upload-heading">Add your CVs</h2>
+                <p class="card-sub">Start with one. Add another version if you have one.</p>
+              </div>
+            </div>
+
+            <label id="drop" class="dropzone" for="files">
+              <span class="drop-icon" aria-hidden="true">↑</span>
+              <span class="drop-title">Choose or drop your CVs</span>
+              <span class="drop-hint">1–5 PDF or DOCX files</span>
+              <input id="files" class="visually-hidden" type="file" multiple aria-describedby="files-hint file-error" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            </label>
+
+            <p class="field-note" id="files-hint">Add at least one CV to begin. You can remove a file at any time.</p>
+            <p id="file-error" class="alert" role="alert" hidden></p>
+
+            <div class="file-head">
+              <span>Selected files</span>
+              <span id="file-count" class="count">0 / 5</span>
+            </div>
+            <ul id="files-list" class="file-list" aria-label="Selected CVs"></ul>
+            <p id="files-empty" class="empty-note">No files selected yet.</p>
+          </section>
+
+          <section class="card job-card" aria-labelledby="job-heading">
+            <div class="card-head">
+              <span class="step" aria-hidden="true">02</span>
+              <div>
+                <h2 id="job-heading">Paste the job posting</h2>
+                <p class="card-sub">The full description works best. We use it to choose what belongs in this CV.</p>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <label class="field" for="job-title">
+                <span class="field-label">Job title <em>optional</em></span>
+                <input id="job-title" type="text" autocomplete="organization-title" maxlength="200" placeholder="Senior Data Engineer">
+              </label>
+              <label class="field" for="job-company">
+                <span class="field-label">Company <em>optional</em></span>
+                <input id="job-company" type="text" autocomplete="organization" maxlength="200" placeholder="Northwind Analytics">
+              </label>
+            </div>
+
+            <label class="field" for="job-location">
+              <span class="field-label">Location <em>optional</em></span>
+              <input id="job-location" type="text" autocomplete="address-level2" maxlength="200" placeholder="Remote · Spain">
+            </label>
+
+            <label class="field" for="job">
+              <span class="field-label">Job posting <span class="required">required</span></span>
+              <textarea id="job" rows="12" maxlength="20000" spellcheck="false" placeholder="Paste the full job description here. Copy it from LinkedIn, Indeed or the company careers page." aria-describedby="job-hint job-count job-error"></textarea>
+            </label>
+            <div class="job-meta">
+              <span id="job-hint" class="field-note">40 characters minimum. Paste the whole posting so nothing important is missed.</span>
+              <span id="job-count" class="count">0 / 20,000</span>
+            </div>
+            <p id="job-error" class="field-error" role="alert" hidden></p>
+
+            <div class="actions">
+              <button id="generate" class="button button-primary button-large" type="button" disabled>Generate my CV</button>
+              <button id="sample" class="button button-quiet" type="button">Try a sample <span aria-hidden="true">→</span></button>
+            </div>
+            <p id="generate-note" class="field-note">Add a CV and a job posting to generate your draft.</p>
+          </section>
+        </div>
+
+        <p id="status" class="status" role="status" aria-live="polite">Choose your CVs to get started.</p>
+      </section>
+
+      <section id="review" class="screen review-screen" aria-labelledby="review-title" hidden>
+        <header class="review-head">
+          <div>
+            <p class="eyebrow">Step 3 · Review</p>
+            <h1 id="review-title" tabindex="-1">Review your CV</h1>
+            <p id="review-subtitle" class="lead">Check every line. Edit anything. Confirm when this exact version is accurate.</p>
+          </div>
+          <button id="start-over" class="button button-quiet" type="button">Start over</button>
+        </header>
+
+        <div class="review-layout">
+          <section class="preview-pane" aria-labelledby="preview-heading">
+            <div class="pane-head">
+              <span class="step" aria-hidden="true">01</span>
+              <h2 id="preview-heading">Your CV</h2>
+              <span id="review-progress" class="pill">Draft</span>
+            </div>
+            <div id="preview" class="preview"></div>
+            <p class="field-note preview-note">This preview mirrors the downloaded PDF and DOCX. Long content may run onto more than one page.</p>
+          </section>
+
+          <aside class="controls-pane" aria-labelledby="controls-heading">
+            <div class="pane-head">
+              <span class="step" aria-hidden="true">02</span>
+              <h2 id="controls-heading">Review &amp; edit</h2>
+            </div>
+
+            <div id="notes" class="notes" aria-label="Why this content"></div>
+
+            <section class="control-block" aria-labelledby="contact-heading">
+              <h3 id="contact-heading">Contact details</h3>
+              <p class="field-note">Details found in your CVs are filled in as provisional values. Check each one; conflicting values are never chosen for you. The full name is required for the CV.</p>
+              <div id="editor" class="editor"></div>
+            </section>
+
+            <section class="confirm-block" aria-labelledby="confirm-heading">
+              <h3 id="confirm-heading">Final check</h3>
+              <label class="check" for="accuracy">
+                <input id="accuracy" type="checkbox">
+                <span>I have reviewed this exact CV and confirm that its content and contact details are accurate. Any wording I changed is my own explicit statement, not documentary evidence.</span>
+              </label>
+              <p id="confirm-status" class="field-note" role="status" aria-live="polite"></p>
+              <button id="confirm" class="button button-primary button-large" type="button" disabled>Confirm final CV</button>
+              <div class="downloads">
+                <button id="pdf" class="button button-secondary" type="button" disabled>Download PDF</button>
+                <button id="docx" class="button button-secondary" type="button" disabled>Download DOCX</button>
+              </div>
+              <p id="download-note" class="field-note">Downloads unlock after you confirm this exact version.</p>
+              <p id="review-status" class="status review-status" role="status" aria-live="polite"></p>
+            </section>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Your files stay on your device. Reloading clears this session.</p>
+      <p><a href="/workspace/">Advanced evidence tools</a> · <a href="/demo/">See the public demo</a></p>
+    </footer>
+  </div>
+</body>
+</html>
