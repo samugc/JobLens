@@ -516,11 +516,16 @@
 
   /* -------------------------------------------------------------- browser */
 
+  function focusMain(document) {
+    document.getElementById("main")?.focus({ preventScroll: true });
+  }
+
   function init() {
     if (typeof document === "undefined" || !document.getElementById) {
       return null;
     }
     const $ = (id) => document.getElementById(id);
+    $("skip-link")?.addEventListener("click", () => focusMain(document));
 
     const nodes = {
       create: $("create"),
@@ -2101,6 +2106,7 @@
     formatBytes,
     fileNameFor,
     targetLabel,
+    focusMain,
     init,
   };
 });

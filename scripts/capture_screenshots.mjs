@@ -9,7 +9,7 @@
  *
  * The script only talks to the local demo. It launches a temporary headless
  * Chrome profile, sets exact viewport metrics, and saves real app screenshots.
- * No result is mocked: every report screenshot comes from /api/analyze.
+ * No result is mocked: the bundled fictional samples use the real CV backend.
  */
 import { spawn } from "node:child_process";
 import fs from "node:fs";
@@ -120,51 +120,6 @@ async function waitForFunction(client, expression, timeoutMs = 15_000) {
   throw new Error(`Timed out waiting for: ${expression}`);
 }
 
-async function capture(
-  client,
-  file,
-  width,
-  height,
-  deviceScaleFactor,
-  mobile,
-  url,
-  scrollToReport,
-  scrollSelector = "#results",
-) {
-  await client.send("Emulation.setDeviceMetricsOverride", {
-    width,
-    height,
-    deviceScaleFactor,
-    mobile,
-    screenWidth: width,
-    screenHeight: height,
-  });
-  await client.send("Page.navigate", { url });
-  await waitForFunction(
-    client,
-    "document.readyState === 'complete' && document.querySelectorAll('#candidate option').length > 0",
-  );
-  if (scrollToReport) {
-    await waitForFunction(
-      client,
-      "!document.getElementById('report').hidden && document.querySelectorAll('#required-list .skill-card').length > 0 && !document.getElementById('analyze').disabled",
-    );
-    await client.send("Runtime.evaluate", {
-      expression: `(() => { const el = document.querySelector(${JSON.stringify(scrollSelector)}); const top = el.getBoundingClientRect().top + window.scrollY - 18; document.documentElement.scrollTop = top; document.body.scrollTop = top; })()`,
-    });
-  } else {
-    await client.send("Runtime.evaluate", { expression: "window.scrollTo(0, 0)" });
-  }
-  await sleep(scrollToReport ? 900 : 250);
-  const { data } = await client.send("Page.captureScreenshot", {
-    format: "png",
-    fromSurface: true,
-    captureBeyondViewport: false,
-  });
-  fs.writeFileSync(path.join(OUTPUT_DIR, file), Buffer.from(data, "base64"));
-  console.log(`Saved ${file} (${width}x${height} CSS px)`);
-}
-
 async function main() {
   if (!BASE_URL.endsWith("/")) throw new Error("JOBLENS_URL must end with /");
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
@@ -193,57 +148,19 @@ async function main() {
     await client.send("Page.enable");
     await client.send("Runtime.enable");
 
-    await capture(
-      client,
-      "overview-desktop.png",
-      1440,
-      1000,
-      1,
-      false,
-      `${BASE_URL}?candidate=alex-rivera&job=junior-ai-engineer-aster`,
-      false,
-    );
-    await capture(
-      client,
-      "report-desktop.png",
-      1440,
-      1600,
-      1,
-      false,
-      `${BASE_URL}?candidate=alex-rivera&job=junior-ai-engineer-aster&analyze=1&view=report`,
-      true,
-    );
-    await capture(
-      client,
-      "review-desktop.png",
-      1440,
-      1000,
-      1,
-      false,
-      `${BASE_URL}?candidate=alex-rivera&job=junior-ai-engineer-aster&analyze=1&view=report`,
-      true,
-      '[aria-labelledby="review-heading"]',
-    );
-    await capture(
-      client,
-      "overview-mobile.png",
-      390,
-      844,
-      2,
-      true,
-      `${BASE_URL}?candidate=jordan-lee&job=data-analyst-harbor`,
-      false,
-    );
-    await capture(
-      client,
-      "report-mobile.png",
-      390,
-      900,
-      2,
-      true,
-      `${BASE_URL}?candidate=alex-rivera&job=junior-ai-engineer-aster&analyze=1&view=report`,
-      true,
-    );
+    await client.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+    await client.send("Page.navigate", { url: BASE_URL });
+    await waitForFunction(client, "document.readyState === 'complete' && !!document.getElementById('sample')");
+    async function shot(name) {
+      const { data } = await client.send("Page.captureScreenshot", { format: "png", captureBeyondViewport: false });
+      fs.writeFileSync(path.join(OUTPUT_DIR, name), Buffer.from(data, "base64"));
+      console.log(`Saved ${name}`);
+    }
+    await shot("product-upload.png");
+    await client.send("Runtime.evaluate", { expression: "document.getElementById('sample').click()" });
+    await waitForFunction(client, "!document.getElementById('review').hidden && document.getElementById('preview').textContent.includes('Alex Rivera')", 30000);
+    await client.send("Runtime.evaluate", { expression: "window.scrollTo(0,0)" });
+    await shot("product-review.png");
   } finally {
     client?.close();
     chrome.kill("SIGTERM");
