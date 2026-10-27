@@ -26,8 +26,14 @@ becomes evidence that the candidate has that skill.
 - Real, single-column A4 PDF and DOCX exports with selectable text and hyperlinks.
 
 The editor is a content preview, not a pixel-identical Word/PDF pagination simulator.
-Current product screenshots are pending capture; historical demo images are not
-used here. See the [capture instructions](docs/screenshots/README.md).
+
+![JobLens upload screen: choose CVs and paste a job posting](docs/screenshots/product-upload.png)
+
+![JobLens review screen: editable CV draft with contact details and source wording](docs/screenshots/product-review.png)
+
+These are current-product captures from the real local backend using the bundled
+fictional Alex Rivera documents. Historical `/demo/` images are not used here.
+See [screenshot notes and regeneration steps](docs/screenshots/README.md).
 
 ## Quick start
 
@@ -56,7 +62,7 @@ The server binds to loopback; do not expose it through a public proxy.
 1. **0–10s:** Select **Try a sample**. Two fictional CVs and a fictional job posting
    pass through the real extraction and drafting pipeline.
 2. **10–25s:** Inspect the generated experience, projects and skills. Open
-   **Why this content?** and **View original wording** to inspect evidence and omissions.
+   **Why this content?** and **Source wording** to inspect evidence and omissions.
 3. **25–40s:** Review the contact details and edit a line. Confirm only wording
    you can truthfully attest; edits are not relabelled as documentary evidence.
 4. **40–60s:** Check the accuracy declaration, select **Confirm final CV**, then

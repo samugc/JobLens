@@ -58,8 +58,8 @@ or **automated tests**. Say:
 > model invention.”
 
 Open **Why this content?** and point at the matching included decision, its
-source document and job requirement. If the UI shows **View original wording**,
-open it briefly and close it.
+source document and job requirement. Open **Source wording** to compare the
+draft with the quoted source, then close it.
 
 ## 1:30–1:45 — Explain one unsupported requirement
 
@@ -73,10 +73,11 @@ bounded, rule-based check.
 
 ## 1:45–2:00 — Review and export real files
 
-The supported full name is prefilled from the CVs; add a fictional e-mail
-(for example, `alex@example.com`) if you want to export. Edit one wording
-detail if you want to show that the confirmation is invalidated, then confirm
-the exact final content and select **Download PDF** and **Download DOCX**.
+The supported full name is prefilled from the CVs and is required to confirm.
+E-mail is optional; add a fictional address (for example, `alex@example.com`)
+only if you want to show contact editing. Edit one wording detail if you want
+to show that the confirmation is invalidated, then confirm the exact final
+content and select **Download PDF** and **Download DOCX**.
 
 Open both files. Say:
 
