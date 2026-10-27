@@ -11,12 +11,14 @@ release tree.
 - [ ] `pyproject.toml` declares Python `>=3.11` and the runtime dependencies.
 - [ ] No fabricated endorsements, user counts, ATS guarantees or benchmark
       claims appear in README, docs or screenshots.
-- [ ] `docs/screenshots/` is labelled as the historical synthetic demo, not
-      the current main UI.
+- [ ] `docs/screenshots/` distinguishes the two current-product captures from
+      the historical `/demo/` images.
 
 ## 2. Clean environment
 
-- [ ] Create a fresh virtual environment with Python 3.11 or 3.12.
+- [ ] Create a fresh virtual environment with Python 3.11+ and run the suite.
+      CI currently exercises Python 3.11 and 3.13; 3.12 is not tested by CI but
+      is not declared incompatible.
 - [ ] Run `python -m pip install -e '.[dev]'`.
 - [ ] Run `python -m ruff check .`.
 - [ ] Run `python -m pytest -q -p no:cacheprovider`.
