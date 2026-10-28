@@ -154,3 +154,64 @@ def test_the_gap_list_is_deduplicated_and_typed():
     coverage = assess_requirements(job, ["Python"])
     gaps = [item.requirement.text for item in coverage if item.state != COVERED]
     assert gaps == ["Terraform"]
+
+
+def test_a_qualifier_does_not_conflate_across_unrelated_evidence():
+    # Regression: "production" pooled from a different evidence string used to
+    # make "Production PostgreSQL" look covered. It must stay partial.
+    assert (
+        _state(
+            "Data Engineer\n\nRequirements:\n- Production experience with Postgres\n",
+            ["PostgreSQL in development", "Docker in production"],
+            "Production experience with Postgres",
+        )
+        == PARTIAL
+    )
+
+
+def test_a_tenure_does_not_conflate_across_unrelated_evidence():
+    # Regression: a stated number of years in one fact used to cover a tenure
+    # requirement attached to an unrelated technology.
+    assert (
+        _state(
+            "Platform Engineer\n\nRequirements:\n- 4+ years of Terraform experience\n",
+            ["Terraform", "6 years of Python experience"],
+            "4+ years of Terraform experience",
+        )
+        == PARTIAL
+    )
+
+
+def test_a_qualifier_is_covered_when_it_co_occurs_with_the_technology():
+    assert (
+        _state(
+            "Data Engineer\n\nRequirements:\n- Production experience with Postgres\n",
+            ["PostgreSQL in production"],
+            "Production experience with Postgres",
+        )
+        == COVERED
+    )
+
+
+def test_a_tenure_is_covered_when_it_co_occurs_with_the_technology():
+    assert (
+        _state(
+            "Platform Engineer\n\nRequirements:\n- 4+ years of Terraform experience\n",
+            ["6 years of Terraform experience"],
+            "4+ years of Terraform experience",
+        )
+        == COVERED
+    )
+
+
+def test_legitimate_multi_document_support_still_covers():
+    # A technology requirement may be satisfied across documents; the
+    # co-occurrence rule must not break genuine multi-document coverage.
+    assert (
+        _state(
+            "Data Engineer\n\nRequirements:\n- PostgreSQL and Airflow\n",
+            ["Postgres", "Scheduled pipelines with Airflow."],
+            "PostgreSQL and Airflow",
+        )
+        == COVERED
+    )

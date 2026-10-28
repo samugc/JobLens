@@ -1,9 +1,9 @@
 # JobLens — evidence-grounded CV tailoring: research and engineering report
 
-**Status:** complete (C6).  
-**Branch:** `research/evidence-quality-2026`  
-**Baseline commit:** `d8ff1b8863ff69515a48ace12d9a93acd77724c8`  
-**Experiment 1 commit:** `42ff5e2`  
+**Status:** complete (C6).
+**Branch:** `research/evidence-quality-2026`
+**Baseline commit:** `d8ff1b8863ff69515a48ace12d9a93acd77724c8`
+**Experiment 1 commit:** `42ff5e2`
 **Experiment 2 commit:** `81f4aec`
 
 This report is the durable source of truth for the research programme. Every
@@ -58,7 +58,7 @@ from 12/16 to 16/16 on development and from 9/12 to 12/12 on holdout, with
 unsafe coverage falling from 4 to 0 and from 3 to 0 respectively, partial
 recall from 0/3 and 0/2 to 3/3 and 2/2, and report/coverage inconsistency
 from 6 to 0 and from 4 to 0. No experiment was reverted. The full test suite
-passes (585 tests), the synthetic release evaluation passes (19 ok, 1
+passes (590 tests), the synthetic release evaluation passes (19 ok, 1
 expected error, 0 failed, 55/55 supported facts, 0/21 unsupported
 insertions, PDF/DOCX parity 1.0), and ruff is clean.
 
@@ -419,6 +419,14 @@ Every preregistered gate is met on both splits.
   partial contributions (`supports_partially`) from full support claims
   (`supports`), before any Experiment 2 holdout run. Both the original and
   the corrected definitions are retained in the repository.
+- **Independent gate review (JL-GATE).** A skeptical pre-merge review found one
+  blocking defect: `assess_requirement` pooled qualifiers and tenure across all
+  evidence strings, so "Production PostgreSQL" could be reported `covered`
+  from evidence that only mentioned PostgreSQL in development and production
+  elsewhere. Fixed in commit `77a421b` by requiring qualifier/tenure to
+  co-occur with a substantive element of the same requirement; 5 permanent
+  regression tests added. All gates re-verified after the fix. The review
+  report is at `docs/agent_reports/JOBLENS_GATE.md`.
 - **No experiment was reverted.** Both were accepted.
 - **No false starts were committed.** Exploratory sketches of a stemming
   rule and a heading list were iterated on the development set only and are
@@ -432,8 +440,8 @@ Every preregistered gate is met on both splits.
   `565 passed in 40.88s`.
 - After Experiment 1: `565 passed`.
 - After Experiment 2: `.venv/bin/python -m pytest -q` →
-  `585 passed in 40.79s`. Added 20 tests
-  (`test_experience_preservation.py` 6, `test_requirement_assessment.py` 12,
+  `590 passed in 40.10s`. Added 25 tests
+  (`test_experience_preservation.py` 6, `test_requirement_assessment.py` 17,
   two noise tests).
 - Ruff: `.venv/bin/ruff check src tests evaluation` → all checks passed.
 - Synthetic release evaluation:
@@ -546,7 +554,7 @@ human approval.
 preservation 1/10 to 10/10 cases (19/62 to 62/62 checks) on development and
 6/6 (38/38) on holdout; coverage correctness 12/16 to 16/16 and 9/12 to
 12/12; unsafe coverage 4 to 0 and 3 to 0; partial recall 0 to 3/3 and 0 to
-2/2. Full suite 585 passed; release evaluation 55/55 facts, 0/21
+2/2. Full suite 590 passed; release evaluation 55/55 facts, 0/21
 insertions; PDF/DOCX parity 1.0.
 
 **Takeaway.** Deterministic, citation-bound generation with explicit human

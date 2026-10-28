@@ -73,4 +73,3 @@ def test_the_share_and_home_navigation_labels_are_still_noise():
         "Platform Engineer\n\nRequired\nPython\n\nShare\nHome\nSave job\n"
     )
     assert job.required == ("Python",)
-
