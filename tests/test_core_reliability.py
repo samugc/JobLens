@@ -516,9 +516,17 @@ def test_job_posting_instructions_never_become_candidate_facts():
     )
     job = parse_job_posting(hostile_job)
     draft, _, _, _, _, report = _draft_with_analysis(source, job)
-    rendered = json.dumps(draft.as_dict())
-    assert "Kubernetes" not in rendered
-    assert "PhD" not in rendered
+    # The posting's words may appear only inside the coverage report, where
+    # they are labelled as the untrusted requirement. They never reach a
+    # factual item or a decision label.
+    factual = json.dumps(
+        [item.as_dict() for section in draft.sections for item in section.items]
+    )
+    assert "Kubernetes" not in factual
+    assert "PhD" not in factual
+    assert "Kubernetes" in json.dumps(
+        [assessment.as_dict() for assessment in draft.requirement_coverage]
+    )
     assert "kubernetes" in {item.casefold() for item in draft.unmet_requirements}
     assert not any(
         decision.outcome == "included" and "phd" in decision.label.casefold()

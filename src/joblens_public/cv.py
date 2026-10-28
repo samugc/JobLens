@@ -21,6 +21,11 @@ from joblens_public.profile.contact import (
     extract_contact_suggestions,
 )
 from joblens_public.profile.models import Category
+from joblens_public.requirements import (
+    RequirementAssessment,
+    assess_requirements,
+    gap_requirements,
+)
 
 #: Version of the CV draft contract.
 CV_DRAFT_VERSION = "0.1"
@@ -97,6 +102,7 @@ class CvDraft:
     sections: tuple[CvDraftSection, ...] = ()
     warnings: tuple[str, ...] = ()
     unmet_requirements: tuple[str, ...] = ()
+    requirement_coverage: tuple[RequirementAssessment, ...] = ()
     contact_suggestions: ContactSuggestions = field(default_factory=ContactSuggestions)
 
     def as_dict(self) -> dict[str, Any]:
@@ -107,6 +113,9 @@ class CvDraft:
             "sections": [section.as_dict() for section in self.sections],
             "warnings": list(self.warnings),
             "unmet_requirements": list(self.unmet_requirements),
+            "requirement_coverage": [
+                assessment.as_dict() for assessment in self.requirement_coverage
+            ],
             "contact_suggestions": self.contact_suggestions.as_dict(),
         }
 
@@ -166,6 +175,12 @@ class CvDraft:
         unmet = payload.get("unmet_requirements", [])
         if not isinstance(unmet, Sequence) or isinstance(unmet, (str, bytes)):
             raise ValueError("unmet_requirements must be an array")
+        coverage_payload = payload.get("requirement_coverage", [])
+        if not isinstance(coverage_payload, Sequence) or isinstance(coverage_payload, (str, bytes)):
+            raise ValueError("requirement_coverage must be an array")
+        coverage = tuple(
+            RequirementAssessment.from_dict(item) for item in coverage_payload
+        )
         suggestions_payload = payload.get("contact_suggestions")
         if suggestions_payload is None:
             suggestions = ContactSuggestions()
@@ -178,6 +193,7 @@ class CvDraft:
             sections=tuple(sections),
             warnings=tuple(str(x) for x in warnings),
             unmet_requirements=tuple(str(x) for x in unmet),
+            requirement_coverage=coverage,
             contact_suggestions=suggestions,
         )
 
@@ -372,6 +388,7 @@ def generate_cv_draft(
 
     facts = list(profile.facts)
     if not facts:
+        coverage = assess_requirements(job, ())
         return CvDraft(
             target_job=TargetJob(
                 title=getattr(job, "title", None), company=getattr(job, "company", None)
@@ -379,9 +396,8 @@ def generate_cv_draft(
             candidate=profile.candidate,
             sections=(),
             warnings=tuple(warnings),
-            unmet_requirements=tuple(
-                getattr(job, "required", ()) + getattr(job, "technologies", ())
-            ),
+            unmet_requirements=gap_requirements(coverage),
+            requirement_coverage=coverage,
             contact_suggestions=suggestions,
         )
 
@@ -607,64 +623,19 @@ def generate_cv_draft(
             )
         )
 
-    # Unmet requirements: job requirements not covered by any approved fact.
-    def coverage_token(token: str) -> str:
-        # A simple plural must not turn a covered requirement into a false gap.
-        if len(token) > 3 and token.endswith("s") and not token.endswith("ss"):
-            return token[:-1]
-        return token
-
-    approved_tokens: set[str] = set()
+    # Requirement coverage: typed, alias-aware, element-wise evidence check.
+    # The posted requirements are untrusted strings; the evidence is always
+    # drawn from the facts (and their exact quotations) that built this draft.
+    evidence_texts: list[str] = []
     for fact in facts:
-        approved_tokens.update(
-            coverage_token(token)
-            for token in _normalise_token(_fact_text(fact)).split()
+        parts = [_fact_text(fact)]
+        parts.extend(_clean_quote(reference.quote) for reference in fact.evidence)
+        parts.extend(
+            value for value in fact.value.values() if isinstance(value, str)
         )
-        for value in fact.value.values():
-            if isinstance(value, str):
-                approved_tokens.update(
-                    coverage_token(token)
-                    for token in _normalise_token(value).split()
-                )
-        for reference in fact.evidence:
-            approved_tokens.update(
-                coverage_token(token)
-                for token in _normalise_token(reference.quote).split()
-            )
-    # Generated item text is source-backed too; including it avoids reporting
-    # a gap when the supporting evidence is already visible in the draft.
-    for section in sections:
-        for item in section.items:
-            approved_tokens.update(
-                coverage_token(token)
-                for token in _normalise_token(item.text).split()
-            )
-    unmet: list[str] = []
-    seen_requirements: set[str] = set()
-
-    def _add(requirement: str) -> None:
-        key = _normalise_token(requirement)
-        if not key or key in seen_requirements:
-            return
-        seen_requirements.add(key)
-        unmet.append(requirement)
-
-    for requirement in list(getattr(job, "required", ())) + list(getattr(job, "technologies", ())):
-        req_tokens = {
-            coverage_token(token)
-            for token in _normalise_token(requirement).split()
-        }
-        if not req_tokens:
-            continue
-        if req_tokens & approved_tokens:
-            # A shared meaningful token counts as covered.
-            continue
-        _add(requirement)
-    for requirement in getattr(job, "preferred", ()):
-        req_tokens = set(_normalise_token(requirement).split())
-        if not req_tokens or (req_tokens & approved_tokens):
-            continue
-        _add(requirement)
+        evidence_texts.append(" | ".join(part for part in parts if part))
+    coverage = assess_requirements(job, evidence_texts)
+    unmet = gap_requirements(coverage)
 
     # Optional Ollama rewriting of the summary only, with strict fallback.
     if ollama:
@@ -699,6 +670,7 @@ def generate_cv_draft(
         sections=tuple(sections),
         warnings=tuple(warnings),
         unmet_requirements=tuple(unmet),
+        requirement_coverage=coverage,
         contact_suggestions=suggestions,
     )
 
@@ -790,6 +762,7 @@ def edit_cv_item(draft: CvDraft, item_id: str, new_text: str) -> CvDraft:
         sections=tuple(new_sections),
         warnings=draft.warnings,
         unmet_requirements=draft.unmet_requirements,
+        requirement_coverage=draft.requirement_coverage,
         contact_suggestions=draft.contact_suggestions,
     )
 
@@ -836,6 +809,7 @@ def approve_cv_item(draft: CvDraft, item_id: str) -> CvDraft:
         sections=tuple(new_sections),
         warnings=draft.warnings,
         unmet_requirements=draft.unmet_requirements,
+        requirement_coverage=draft.requirement_coverage,
         contact_suggestions=draft.contact_suggestions,
     )
 
@@ -856,6 +830,7 @@ def update_candidate_contact(draft: CvDraft, contact: CandidateContact) -> CvDra
         sections=draft.sections,
         warnings=draft.warnings,
         unmet_requirements=draft.unmet_requirements,
+        requirement_coverage=draft.requirement_coverage,
         contact_suggestions=draft.contact_suggestions,
     )
 

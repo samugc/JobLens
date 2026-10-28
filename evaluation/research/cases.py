@@ -519,7 +519,7 @@ BSc in Computer Science.
 """,
             ),
         ),
-        job_text="Product Manager. Requirements:\n- Python\n",
+        job_text="Product Manager. Requirements:\n- Python\n- Product roadmaps\n",
         must_preserve=(
             "Grew annual recurring revenue by 24% to €3.1M.",
             "Reduced churn across 1,200 accounts by 7 points.",

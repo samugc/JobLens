@@ -16,9 +16,18 @@ so older clients can ignore it.
 """
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
+
+from joblens_public.requirements import (
+    COVERED,
+    REQUIRED,
+    TECHNOLOGY,
+    UNCOVERED,
+    RequirementAssessment,
+    assess_requirements,
+    is_gap,
+)
 
 #: Version of the decision-report contract.
 DECISION_REPORT_VERSION = "0.1"
@@ -40,51 +49,10 @@ REASONS = (
     EXCLUDED_LOWER_PRIORITY,
 )
 
-#: Words that carry no discriminating meaning when matching a requirement.
-_STOPWORDS = frozenset(
-    {
-        "a",
-        "an",
-        "and",
-        "are",
-        "as",
-        "at",
-        "be",
-        "by",
-        "for",
-        "from",
-        "in",
-        "is",
-        "of",
-        "on",
-        "or",
-        "our",
-        "plus",
-        "the",
-        "to",
-        "we",
-        "will",
-        "with",
-        "you",
-        "your",
-    }
-)
-
+#: Acronyms rendered in upper case in labels.
 _ACRONYMS = frozenset(
     {"sql", "aws", "api", "ci", "cd", "ml", "ai", "nlp", "etl", "gcp", "gpu", "ui", "ux"}
 )
-
-
-def _normalise(value: str) -> str:
-    return re.sub(r"[^a-z0-9]+", " ", value.casefold()).strip()
-
-
-def _tokens(value: str) -> set[str]:
-    return {
-        token
-        for token in _normalise(value).split()
-        if token and token not in _STOPWORDS
-    }
 
 
 def _display_word(word: str) -> str:
@@ -129,43 +97,41 @@ def _label(category: str, value: Mapping[str, Any]) -> str:
     return _display(str(value))
 
 
-def _requirement_matches(requirement: str, fact_text: str) -> bool:
-    """True only when the requirement is clearly represented by the fact."""
-    requirement = requirement.strip()
-    if not requirement:
-        return False
-    fact_normalised = _normalise(fact_text)
-    fact_tokens = _tokens(fact_text)
-    significant = _tokens(requirement)
-    if not significant:
-        return False
-    if len(significant) == 1:
-        token = next(iter(significant))
-        return token in fact_tokens
-    # Multi-word requirements must appear as a phrase. This is deliberately
-    # conservative: a shared generic word never counts as support.
-    return _normalise(requirement) in fact_normalised
-
-
 def _supports(
-    fact_text: str, job: Any
-) -> tuple[tuple[str, ...], tuple[str, ...]]:
-    """Return (essential requirements, relevant requirements) it supports."""
+    fact_text: str, job: Any, aggregate_states: Mapping[str, str]
+) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    """Return (essential, relevant, essential partial, relevant partial).
+
+    The assessment is element-wise. A requirement is reported as fully
+    supported only when the draft as a whole covers it *and* this content
+    states at least one of its elements. When only part of the requirement is
+    covered, the content is reported separately so it can never read as a
+    claim that the requirement is satisfied.
+    """
+    assessments = assess_requirements(job, [fact_text])
     essential: list[str] = []
     relevant: list[str] = []
-    for collection in (getattr(job, "technologies", ()), getattr(job, "required", ())):
-        for requirement in collection:
-            if _requirement_matches(requirement, fact_text) and requirement not in essential:
-                essential.append(requirement)
-    for collection in (getattr(job, "preferred", ()), getattr(job, "responsibilities", ())):
-        for requirement in collection:
-            if (
-                _requirement_matches(requirement, fact_text)
-                and requirement not in essential
-                and requirement not in relevant
-            ):
-                relevant.append(requirement)
-    return tuple(essential), tuple(relevant)
+    essential_partial: list[str] = []
+    relevant_partial: list[str] = []
+    for assessment in assessments:
+        if assessment.state == UNCOVERED:
+            continue
+        text = assessment.requirement.text
+        importance = assessment.requirement.importance
+        is_essential = importance in (REQUIRED, TECHNOLOGY)
+        aggregate = aggregate_states.get(assessment.requirement.requirement_id)
+        if aggregate == COVERED:
+            target = essential if is_essential else relevant
+        else:
+            target = essential_partial if is_essential else relevant_partial
+        if text not in target:
+            target.append(text)
+    return (
+        tuple(essential),
+        tuple(relevant),
+        tuple(essential_partial),
+        tuple(relevant_partial),
+    )
 
 
 @dataclass(frozen=True)
@@ -180,6 +146,7 @@ class Decision:
     label: str
     explanation: str
     supports: tuple[str, ...] = ()
+    supports_partially: tuple[str, ...] = ()
     alternatives: tuple[str, ...] = ()
     documents: tuple[str, ...] = ()
 
@@ -193,6 +160,7 @@ class Decision:
             "label": self.label,
             "explanation": self.explanation,
             "supports": list(self.supports),
+            "supports_partially": list(self.supports_partially),
             "alternatives": list(self.alternatives),
             "documents": list(self.documents),
         }
@@ -200,13 +168,20 @@ class Decision:
 
 @dataclass(frozen=True)
 class UnmetRequirement:
-    """A job requirement that no approved fact supports."""
+    """A job requirement that no approved fact supports in full."""
 
     requirement: str
     explanation: str
+    state: str = UNCOVERED
+    missing: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
-        return {"requirement": self.requirement, "explanation": self.explanation}
+        return {
+            "requirement": self.requirement,
+            "explanation": self.explanation,
+            "state": self.state,
+            "missing": list(self.missing),
+        }
 
 
 @dataclass(frozen=True)
@@ -216,6 +191,7 @@ class DecisionReport:
     decision_report_version: str = DECISION_REPORT_VERSION
     decisions: tuple[Decision, ...] = ()
     unmet_requirements: tuple[UnmetRequirement, ...] = ()
+    requirement_coverage: tuple[RequirementAssessment, ...] = ()
     warnings: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
@@ -229,6 +205,9 @@ class DecisionReport:
             "decisions": [decision.as_dict() for decision in self.decisions],
             "unmet_requirements": [
                 requirement.as_dict() for requirement in self.unmet_requirements
+            ],
+            "requirement_coverage": [
+                assessment.as_dict() for assessment in self.requirement_coverage
             ],
             "warnings": list(self.warnings),
         }
@@ -338,7 +317,11 @@ def _reason_for_omission(reason: str) -> str:
 
 
 def _included_explanation(
-    label: str, essential: Sequence[str], relevant: Sequence[str]
+    label: str,
+    essential: Sequence[str],
+    relevant: Sequence[str],
+    essential_partial: Sequence[str] = (),
+    relevant_partial: Sequence[str] = (),
 ) -> tuple[str, str]:
     if essential:
         requirement = essential[0]
@@ -353,6 +336,22 @@ def _included_explanation(
             SELECTED_RELEVANT,
             f"{label} was included because it supports the job requirement "
             f"“{requirement}”.",
+        )
+    if essential_partial:
+        requirement = essential_partial[0]
+        return (
+            SELECTED_ESSENTIAL,
+            f"{label} was included because it contributes evidence to the essential "
+            f"job requirement “{requirement}”, which is only partly covered. "
+            "The draft does not claim the whole requirement is satisfied.",
+        )
+    if relevant_partial:
+        requirement = relevant_partial[0]
+        return (
+            SELECTED_RELEVANT,
+            f"{label} was included because it contributes evidence to the job "
+            f"requirement “{requirement}”, which is only partly covered. "
+            "The draft does not claim the whole requirement is satisfied.",
         )
     return (
         SELECTED_RELEVANT,
@@ -372,6 +371,11 @@ def build_decision_report(
 ) -> DecisionReport:
     """Translate an actual generation trace into a deterministic report."""
     documents = documents or {}
+    coverage = tuple(getattr(draft, "requirement_coverage", ()) or ())
+    aggregate_states = {
+        assessment.requirement.requirement_id: assessment.state
+        for assessment in coverage
+    }
     included_ids = {
         fact_id
         for section in draft.sections
@@ -428,8 +432,12 @@ def build_decision_report(
         value = entry.get("value") or {}
         label = _label(category, value)
         quotes = " ".join(entry.get("retained_quotes") or entry.get("source_quotes") or ())
-        essential, relevant = _supports(f"{label} {quotes}", job)
-        reason, explanation = _included_explanation(label, essential, relevant)
+        essential, relevant, essential_partial, relevant_partial = _supports(
+            f"{label} {quotes}", job, aggregate_states
+        )
+        reason, explanation = _included_explanation(
+            label, essential, relevant, essential_partial, relevant_partial
+        )
         decisions.append(
             Decision(
                 decision_id=next_id(),
@@ -440,6 +448,7 @@ def build_decision_report(
                 label=label,
                 explanation=explanation,
                 supports=essential + relevant,
+                supports_partially=essential_partial + relevant_partial,
                 documents=document_labels(entry),
             )
         )
@@ -461,8 +470,12 @@ def build_decision_report(
             quotes = " ".join(
                 entry.get("retained_quotes") or entry.get("source_quotes") or ()
             )
-            essential, relevant = _supports(f"{label} {quotes}", job)
-            reason, explanation = _included_explanation(label, essential, relevant)
+            essential, relevant, essential_partial, relevant_partial = _supports(
+                f"{label} {quotes}", job, aggregate_states
+            )
+            reason, explanation = _included_explanation(
+                label, essential, relevant, essential_partial, relevant_partial
+            )
             decisions.append(
                 Decision(
                     decision_id=next_id(),
@@ -473,6 +486,7 @@ def build_decision_report(
                     label=label,
                     explanation="Used in the professional summary. " + explanation,
                     supports=essential + relevant,
+                    supports_partially=essential_partial + relevant_partial,
                     documents=document_labels(entry),
                 )
             )
@@ -611,20 +625,49 @@ def build_decision_report(
             )
         )
 
-    unmet = tuple(
-        UnmetRequirement(
-            requirement=requirement,
-            explanation=(
-                "No approved fact supports this job requirement; it was not added "
-                "to the CV."
-            ),
+    if coverage:
+        unmet_items: list[UnmetRequirement] = []
+        for assessment in coverage:
+            if not is_gap(assessment):
+                continue
+            missing = tuple(element.label for element in assessment.missing)
+            if assessment.state == UNCOVERED:
+                explanation = (
+                    "No approved fact states this job requirement; it was not "
+                    "added to the CV."
+                )
+            else:
+                explanation = (
+                    "Only part of this job requirement is supported by approved "
+                    "facts"
+                    + (f" (missing: {', '.join(missing)})" if missing else "")
+                    + "; the draft does not claim the rest."
+                )
+            unmet_items.append(
+                UnmetRequirement(
+                    requirement=assessment.requirement.text,
+                    explanation=explanation,
+                    state=assessment.state,
+                    missing=missing,
+                )
+            )
+        unmet = tuple(unmet_items)
+    else:
+        unmet = tuple(
+            UnmetRequirement(
+                requirement=requirement,
+                explanation=(
+                    "No approved fact supports this job requirement; it was not "
+                    "added to the CV."
+                ),
+            )
+            for requirement in getattr(draft, "unmet_requirements", ())
         )
-        for requirement in getattr(draft, "unmet_requirements", ())
-    )
 
     return DecisionReport(
         decisions=tuple(decisions),
         unmet_requirements=unmet,
+        requirement_coverage=coverage,
         warnings=tuple(getattr(draft, "warnings", ())),
     )
 

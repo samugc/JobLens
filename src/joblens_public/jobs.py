@@ -13,6 +13,7 @@ from typing import Any, Mapping, Sequence
 
 from joblens_public.profile.lexicon import SKILL_TERMS
 from joblens_public.reconcile.text import normalise
+from joblens_public.requirements import technologies_in
 
 #: Version of the job-posting contract.
 JOB_POSTING_VERSION = "0.1"
@@ -21,20 +22,36 @@ JOB_POSTING_VERSION = "0.1"
 _REQUIRED_HEADINGS = (
     "required",
     "requirements",
+    "requirements and qualifications",
     "qualifications",
     "must have",
     "must-have",
+    "must haves",
     "essential",
     "mandatory",
     "what you need",
+    "what you'll need",
+    "what you will need",
     "what we need",
+    "what we're looking for",
+    "what we are looking for",
+    "who you are",
+    "about you",
+    "your profile",
+    "you have",
+    "you'll have",
+    "you will have",
+    "skills and experience",
     "minimum",
 )
 _PREFERRED_HEADINGS = (
     "preferred",
+    "preferred qualifications",
     "nice to have",
     "nice-to-have",
+    "nice to haves",
     "bonus",
+    "bonus points",
     "plus",
     "desired",
     "advantageous",
@@ -45,6 +62,10 @@ _RESPONSIBILITY_HEADINGS = (
     "duties",
     "what you will do",
     "what you'll do",
+    "what you'll be doing",
+    "what you will be doing",
+    "day to day",
+    "the role",
     "role",
     "about the role",
     "job description",
@@ -69,9 +90,12 @@ _NOISE = (
     "apply now",
     "apply today",
     "share",
+    "share this job",
+    "save",
     "save job",
     "report this job",
     "cookie",
+    "cookie policy",
     "privacy policy",
     "terms of use",
     "sign in",
@@ -79,13 +103,37 @@ _NOISE = (
     "create account",
     "home",
 )
+#: Prefixes that mark a whole line as page chrome even when it carries a suffix.
+_NOISE_PREFIXES = (
+    "apply now",
+    "apply today",
+    "save job",
+    "report this job",
+    "cookie ",
+    "privacy policy",
+    "terms of use",
+    "sign in",
+    "log in",
+    "create account",
+    "share this job",
+)
+
+
+def _noise_key(line: str) -> str:
+    return re.sub(r"[^a-z0-9 ]+", " ", line.casefold()).strip()
+
+
+_NOISE_KEYS = frozenset(_noise_key(phrase) for phrase in _NOISE)
 
 
 def _is_noise(line: str) -> bool:
-    lowered = line.casefold()
-    if len(lowered) < 2:
+    key = _noise_key(line)
+    if len(key) < 2:
         return True
-    return any(token in lowered for token in _NOISE)
+    # Exact labels and known page-chrome prefixes are dropped. Matching is not
+    # a substring search: "Shared on-call rotation" and "Home automation" are
+    # content, while the "Share" and "Home" navigation labels are not.
+    return key in _NOISE_KEYS or key.startswith(_NOISE_PREFIXES)
 
 
 def _heading_kind(line: str) -> str | None:
@@ -182,6 +230,8 @@ class JobPosting:
     required: tuple[str, ...] = ()
     preferred: tuple[str, ...] = ()
     technologies: tuple[str, ...] = ()
+    required_technologies: tuple[str, ...] = ()
+    preferred_technologies: tuple[str, ...] = ()
     responsibilities: tuple[str, ...] = ()
     experience_expectations: tuple[str, ...] = ()
     other_context: tuple[str, ...] = ()
@@ -196,6 +246,8 @@ class JobPosting:
             "required": list(self.required),
             "preferred": list(self.preferred),
             "technologies": list(self.technologies),
+            "required_technologies": list(self.required_technologies),
+            "preferred_technologies": list(self.preferred_technologies),
             "responsibilities": list(self.responsibilities),
             "experience_expectations": list(self.experience_expectations),
             "other_context": list(self.other_context),
@@ -223,6 +275,8 @@ class JobPosting:
             required=_string_tuple(payload.get("required", [])),
             preferred=_string_tuple(payload.get("preferred", [])),
             technologies=_string_tuple(payload.get("technologies", [])),
+            required_technologies=_string_tuple(payload.get("required_technologies", [])),
+            preferred_technologies=_string_tuple(payload.get("preferred_technologies", [])),
             responsibilities=_string_tuple(payload.get("responsibilities", [])),
             experience_expectations=_string_tuple(payload.get("experience_expectations", [])),
             other_context=_string_tuple(payload.get("other_context", [])),
@@ -276,7 +330,24 @@ def parse_job_posting(
 
     # Technologies: required/preferred sections first, then everything else.
     technology_source = " ".join(required + preferred + responsibilities + general)
-    technologies = _extract_technologies(technology_source)
+    technologies = list(_extract_technologies(technology_source))
+
+    def technologies_from(lines: list[str]) -> tuple[str, ...]:
+        found: list[str] = []
+        for line in lines:
+            for canonical in technologies_in(line):
+                if canonical not in found:
+                    found.append(canonical)
+        return tuple(found)
+
+    required_technologies = technologies_from(required)
+    preferred_technologies = technologies_from(preferred)
+    # Requirement-side aliases (for example "Go") are not profile vocabulary,
+    # but a posting that names them must still be able to report them.
+    for canonical in required_technologies + preferred_technologies:
+        if canonical not in technologies:
+            technologies.append(canonical)
+    technologies = tuple(technologies)
 
     # Required qualifications: short bullet lines from required sections, dedup.
     required_qualifications: list[str] = []
@@ -321,6 +392,8 @@ def parse_job_posting(
         required=tuple(required_qualifications),
         preferred=tuple(preferred_qualifications),
         technologies=technologies,
+        required_technologies=required_technologies,
+        preferred_technologies=preferred_technologies,
         responsibilities=tuple(responsibility_lines),
         experience_expectations=tuple(experience_lines),
         other_context=tuple(other_context),

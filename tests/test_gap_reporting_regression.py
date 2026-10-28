@@ -55,3 +55,22 @@ def test_visible_source_evidence_is_not_reported_as_a_gap():
     job = parse_job_posting("Required\nPython\nREST APIs\n")
     draft = generate_cv_draft(profile, job)
     assert "rest api" not in {item.casefold() for item in draft.unmet_requirements}
+
+
+def test_noise_matching_does_not_delete_content_words():
+    job = parse_job_posting(
+        "Platform Engineer\n\nRequired\n"
+        "Shared on-call rotation\n"
+        "Home automation experience\n"
+        "Python\n"
+    )
+    assert "Shared on-call rotation" in job.required
+    assert "Home automation experience" in job.required
+
+
+def test_the_share_and_home_navigation_labels_are_still_noise():
+    job = parse_job_posting(
+        "Platform Engineer\n\nRequired\nPython\n\nShare\nHome\nSave job\n"
+    )
+    assert job.required == ("Python",)
+

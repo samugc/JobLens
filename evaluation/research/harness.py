@@ -218,11 +218,14 @@ def run_coverage_case(server: LocalServer, case: CoverageCase) -> CoverageResult
         result.unmet = list(draft.get("unmet_requirements", []))
         report = draft.get("decision_report", {}) or {}
         supports: list[str] = []
+        partial_supports: list[str] = []
         for decision in report.get("decisions", []) or []:
             if decision.get("outcome") != "included":
                 continue
             for item in decision.get("supports", []) or []:
                 supports.append(_norm(str(item)))
+            for item in decision.get("supports_partially", []) or []:
+                partial_supports.append(_norm(str(item)))
 
         for label in case.requirements:
             from joblens_public.jobs import parse_job_posting
@@ -239,9 +242,14 @@ def run_coverage_case(server: LocalServer, case: CoverageCase) -> CoverageResult
                     else "covered"
                 )
                 predicted_importance = _importance_for(job, label)
-            supported_in_report = any(
-                _norm(label.text) == support or _norm(label.text) in support
+            normalized = _norm(label.text)
+            fully_supported_in_report = any(
+                normalized == support or normalized in support
                 for support in supports
+            )
+            supported_in_report = fully_supported_in_report or any(
+                normalized == support or normalized in support
+                for support in partial_supports
             )
             result.requirements.append(
                 {
@@ -251,6 +259,7 @@ def run_coverage_case(server: LocalServer, case: CoverageCase) -> CoverageResult
                     "gold_importance": label.importance,
                     "predicted_importance": predicted_importance,
                     "supported_in_report": supported_in_report,
+                    "fully_supported_in_report": fully_supported_in_report,
                     "coverage_entry_present": entry is not None,
                 }
             )
@@ -306,15 +315,19 @@ def aggregate(
         "duplicate_gap_entries": sum(case.duplicate_gap_entries for case in coverage),
         "report_support_false_claims": count(
             lambda item: item["gold_state"] in {"partial", "uncovered"}
-            and item["supported_in_report"]
+            and item["fully_supported_in_report"]
         ),
         "report_support_missing": count(
             lambda item: item["gold_state"] == "covered"
-            and not item["supported_in_report"]
+            and not item["fully_supported_in_report"]
         ),
         "coverage_report_inconsistent": count(
             lambda item: (
-                item["predicted_state"] in {"covered", "partial"}
+                item["predicted_state"] == "covered"
+                and not item["fully_supported_in_report"]
+            )
+            or (
+                item["predicted_state"] == "partial"
                 and not item["supported_in_report"]
             )
             or (

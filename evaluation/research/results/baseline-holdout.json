@@ -1,0 +1,444 @@
+{
+  "label": "baseline-holdout",
+  "split": "holdout",
+  "metrics": {
+    "achievement_cases": 6,
+    "achievement_cases_ok": 6,
+    "achievement_checks": 38,
+    "achievement_checks_passed": 38,
+    "coverage_cases": 8,
+    "coverage_cases_ok": 8,
+    "requirements": 12,
+    "state_correct": 9,
+    "unsafe_cover": 3,
+    "covered_requirements": 6,
+    "covered_recalled": 6,
+    "partial_requirements": 2,
+    "partial_recalled": 0,
+    "uncovered_requirements": 4,
+    "uncovered_recalled": 3,
+    "importance_checks": 12,
+    "importance_correct": 12,
+    "duplicate_gap_entries": 0,
+    "report_support_false_claims": 0,
+    "report_support_missing": 1,
+    "coverage_report_inconsistent": 4,
+    "errors": 0
+  },
+  "achievement_cases": [
+    {
+      "case_id": "hold_ach_verbs",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Authored the incident review standard",
+          "passed": true,
+          "detail": "authored the incident review standard used by four teams.; reorganized the weekly reporting cycle, cutting preparation time by 11 hours. operations analyst fictional harbor 2020-2024"
+        },
+        {
+          "name": "draft_experience:Reorganized the weekly reporting cycle",
+          "passed": true,
+          "detail": "authored the incident review standard used by four teams.; reorganized the weekly reporting cycle, cutting preparation time by 11 hours. operations analyst fictional harbor 2020-2024"
+        },
+        {
+          "name": "pdf_preserved:Authored the incident review standard used by four teams.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary operations analyst with skills in python and sql. authored the incident review standard used by four teams. experience operations analyst fictional harbor 2020-2024 • authored the incident review standard used by four teams.; reorganized"
+        },
+        {
+          "name": "pdf_preserved:Reorganized the weekly reporting cycle, cutting preparation time by 11 hours.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary operations analyst with skills in python and sql. authored the incident review standard used by four teams. experience operations analyst fictional harbor 2020-2024 • authored the incident review standard used by four teams.; reorganized"
+        },
+        {
+          "name": "docx_preserved:Authored the incident review standard used by four teams.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary operations analyst with skills in python and sql. authored the incident review standard used by four teams. experience operations analyst fictional harbor 2020-2024 authored the incident review standard used by four teams.; reorganized t"
+        },
+        {
+          "name": "docx_preserved:Reorganized the weekly reporting cycle, cutting preparation time by 11 hours.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary operations analyst with skills in python and sql. authored the incident review standard used by four teams. experience operations analyst fictional harbor 2020-2024 authored the incident review standard used by four teams.; reorganized t"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "hold_ach_chain",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Cut infrastructure cost",
+          "passed": true,
+          "detail": "cut infrastructure cost per request by 22%.; built docker images and automated deployment checks. platform engineer fictional cedar labs 2019-2024"
+        },
+        {
+          "name": "draft_experience:Built Docker images",
+          "passed": true,
+          "detail": "cut infrastructure cost per request by 22%.; built docker images and automated deployment checks. platform engineer fictional cedar labs 2019-2024"
+        },
+        {
+          "name": "pdf_preserved:Cut infrastructure cost per request by 22%.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary platform engineer with skills in docker. cut infrastructure cost per request by 22%. experience platform engineer fictional cedar labs 2019-2024 • cut infrastructure cost per request by 22%.; built docker images and automated deployment "
+        },
+        {
+          "name": "pdf_preserved:Built Docker images and automated deployment checks.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary platform engineer with skills in docker. cut infrastructure cost per request by 22%. experience platform engineer fictional cedar labs 2019-2024 • cut infrastructure cost per request by 22%.; built docker images and automated deployment "
+        },
+        {
+          "name": "docx_preserved:Cut infrastructure cost per request by 22%.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary platform engineer with skills in docker. cut infrastructure cost per request by 22%. experience platform engineer fictional cedar labs 2019-2024 cut infrastructure cost per request by 22%.; built docker images and automated deployment ch"
+        },
+        {
+          "name": "docx_preserved:Built Docker images and automated deployment checks.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary platform engineer with skills in docker. cut infrastructure cost per request by 22%. experience platform engineer fictional cedar labs 2019-2024 cut infrastructure cost per request by 22%.; built docker images and automated deployment ch"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "hold_ach_docx_boundaries",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Designed the warehouse schema",
+          "passed": true,
+          "detail": "designed the warehouse schema for three product lines.; maintained data quality checks across 40 tables. data engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "draft_experience:Maintained data quality checks",
+          "passed": true,
+          "detail": "designed the warehouse schema for three product lines.; maintained data quality checks across 40 tables. data engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "pdf_preserved:Designed the warehouse schema for three product lines.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data engineer with skills in python and sql. designed the warehouse schema for three product lines. experience data engineer fictional cedar labs 2021-2024 • designed the warehouse schema for three product lines.; maintained data quality"
+        },
+        {
+          "name": "pdf_preserved:Maintained data quality checks across 40 tables.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data engineer with skills in python and sql. designed the warehouse schema for three product lines. experience data engineer fictional cedar labs 2021-2024 • designed the warehouse schema for three product lines.; maintained data quality"
+        },
+        {
+          "name": "pdf_absent:Project Lantern: Built a Python dashboard",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data engineer with skills in python and sql. designed the warehouse schema for three product lines. experience data engineer fictional cedar labs 2021-2024 • designed the warehouse schema for three product lines.; maintained data quality"
+        },
+        {
+          "name": "docx_preserved:Designed the warehouse schema for three product lines.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data engineer with skills in python and sql. designed the warehouse schema for three product lines. experience data engineer fictional cedar labs 2021-2024 designed the warehouse schema for three product lines.; maintained data quality c"
+        },
+        {
+          "name": "docx_preserved:Maintained data quality checks across 40 tables.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data engineer with skills in python and sql. designed the warehouse schema for three product lines. experience data engineer fictional cedar labs 2021-2024 designed the warehouse schema for three product lines.; maintained data quality c"
+        },
+        {
+          "name": "docx_absent:Project Lantern: Built a Python dashboard",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data engineer with skills in python and sql. designed the warehouse schema for three product lines. experience data engineer fictional cedar labs 2021-2024 designed the warehouse schema for three product lines.; maintained data quality c"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "hold_ach_numbers_units",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:€3.1M",
+          "passed": true,
+          "detail": "grew annual recurring revenue by 24% to €3.1m.; reduced churn across 1,200 accounts by 7 points. product manager fictional harbor 2017-2024"
+        },
+        {
+          "name": "draft_experience:1,200 accounts",
+          "passed": true,
+          "detail": "grew annual recurring revenue by 24% to €3.1m.; reduced churn across 1,200 accounts by 7 points. product manager fictional harbor 2017-2024"
+        },
+        {
+          "name": "pdf_preserved:Grew annual recurring revenue by 24% to €3.1M.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary product manager with skills in python. grew annual recurring revenue by 24% to €3.1m. experience product manager fictional harbor 2017-2024 • grew annual recurring revenue by 24% to €3.1m.; reduced churn across 1,200 accounts by 7 points"
+        },
+        {
+          "name": "pdf_preserved:Reduced churn across 1,200 accounts by 7 points.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary product manager with skills in python. grew annual recurring revenue by 24% to €3.1m. experience product manager fictional harbor 2017-2024 • grew annual recurring revenue by 24% to €3.1m.; reduced churn across 1,200 accounts by 7 points"
+        },
+        {
+          "name": "docx_preserved:Grew annual recurring revenue by 24% to €3.1M.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary product manager with skills in python. grew annual recurring revenue by 24% to €3.1m. experience product manager fictional harbor 2017-2024 grew annual recurring revenue by 24% to €3.1m.; reduced churn across 1,200 accounts by 7 points. "
+        },
+        {
+          "name": "docx_preserved:Reduced churn across 1,200 accounts by 7 points.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary product manager with skills in python. grew annual recurring revenue by 24% to €3.1m. experience product manager fictional harbor 2017-2024 grew annual recurring revenue by 24% to €3.1m.; reduced churn across 1,200 accounts by 7 points. "
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "hold_ach_no_bullets",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Migrated 15 reporting jobs",
+          "passed": true,
+          "detail": "data analyst at fictional harbor data analyst fictional harbor 2016-2018 migrated 15 reporting jobs to a scheduled pipeline. software engineer fictional cedar labs 2018-2024"
+        },
+        {
+          "name": "pdf_preserved:Migrated 15 reporting jobs to a scheduled pipeline.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com experience data analyst fictional harbor 2016-2018 • data analyst at fictional harbor software engineer fictional cedar labs 2018-2024 • migrated 15 reporting jobs to a scheduled pipeline. education bsc in computer science. skills python, sql"
+        },
+        {
+          "name": "pdf_max_occurrences:Migrated 15 reporting jobs",
+          "passed": true,
+          "detail": "count=1 max=1"
+        },
+        {
+          "name": "docx_preserved:Migrated 15 reporting jobs to a scheduled pipeline.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com experience data analyst fictional harbor 2016-2018 data analyst at fictional harbor software engineer fictional cedar labs 2018-2024 migrated 15 reporting jobs to a scheduled pipeline. education bsc in computer science. skills python, sql"
+        },
+        {
+          "name": "docx_max_occurrences:Migrated 15 reporting jobs",
+          "passed": true,
+          "detail": "count=1 max=1"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "hold_ach_mixed_markers",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Introduced trunk-based development",
+          "passed": true,
+          "detail": "introduced trunk-based development for six teams.; reviewed 240 pull requests in the first year. software engineer fictional cedar labs 2020-2024"
+        },
+        {
+          "name": "draft_experience:Reviewed 240 pull requests",
+          "passed": true,
+          "detail": "introduced trunk-based development for six teams.; reviewed 240 pull requests in the first year. software engineer fictional cedar labs 2020-2024"
+        },
+        {
+          "name": "draft_experience_absent:•",
+          "passed": true,
+          "detail": "introduced trunk-based development for six teams.; reviewed 240 pull requests in the first year. software engineer fictional cedar labs 2020-2024"
+        },
+        {
+          "name": "pdf_preserved:Introduced trunk-based development for six teams",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and git. introduced trunk-based development for six teams. experience software engineer fictional cedar labs 2020-2024 • introduced trunk-based development for six teams.; reviewed 240 pull request"
+        },
+        {
+          "name": "pdf_preserved:Reviewed 240 pull requests in the first year.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and git. introduced trunk-based development for six teams. experience software engineer fictional cedar labs 2020-2024 • introduced trunk-based development for six teams.; reviewed 240 pull request"
+        },
+        {
+          "name": "docx_preserved:Introduced trunk-based development for six teams",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and git. introduced trunk-based development for six teams. experience software engineer fictional cedar labs 2020-2024 introduced trunk-based development for six teams.; reviewed 240 pull requests "
+        },
+        {
+          "name": "docx_preserved:Reviewed 240 pull requests in the first year.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and git. introduced trunk-based development for six teams. experience software engineer fictional cedar labs 2020-2024 introduced trunk-based development for six teams.; reviewed 240 pull requests "
+        }
+      ],
+      "error": null
+    }
+  ],
+  "coverage_cases": [
+    {
+      "case_id": "hold_cov_generic",
+      "requirements": [
+        {
+          "text": "Experience with dbt",
+          "gold_state": "uncovered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "Python",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "hold_cov_partial",
+      "requirements": [
+        {
+          "text": "Kafka and Spark",
+          "gold_state": "partial",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "hold_cov_alias",
+      "requirements": [
+        {
+          "text": "GCP",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [
+        "Python"
+      ],
+      "error": null
+    },
+    {
+      "case_id": "hold_cov_tenure",
+      "requirements": [
+        {
+          "text": "4+ years of Terraform experience",
+          "gold_state": "partial",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "hold_cov_preferred",
+      "requirements": [
+        {
+          "text": "TypeScript",
+          "gold_state": "uncovered",
+          "predicted_state": "uncovered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "GraphQL",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "preferred",
+          "predicted_importance": "preferred",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [
+        "TypeScript"
+      ],
+      "error": null
+    },
+    {
+      "case_id": "hold_cov_collision",
+      "requirements": [
+        {
+          "text": "Rust",
+          "gold_state": "uncovered",
+          "predicted_state": "uncovered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "Python",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [
+        "Rust"
+      ],
+      "error": null
+    },
+    {
+      "case_id": "hold_cov_multi_document_alias",
+      "requirements": [
+        {
+          "text": "PostgreSQL and Airflow",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "hold_cov_absent",
+      "requirements": [
+        {
+          "text": "Stakeholder presentation experience",
+          "gold_state": "uncovered",
+          "predicted_state": "uncovered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "SQL",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [
+        "Stakeholder presentation experience"
+      ],
+      "error": null
+    }
+  ]
+}

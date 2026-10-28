@@ -77,7 +77,11 @@ assert.ok(draft.sections.length > 0, "the real pipeline returns content");
 assert.equal(draft.review.baseline.review_mode, "provisional");
 assert.ok(Object.keys(draft.review.baseline.evidence || {}).length > 0);
 assert.ok(Array.isArray(draft.unmet_requirements));
-assert.ok(draft.unmet_requirements.includes("terraform"));
+assert.ok(
+  draft.unmet_requirements.some((item) =>
+    String(item).toLowerCase().includes("terraform"),
+  ),
+);
 assert.equal(typeof body.draft.omitted_count, "number");
 
 draft.candidate.full_name = "Alex Rivera";
