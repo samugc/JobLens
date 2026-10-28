@@ -1,6 +1,5 @@
 """Source-backed provisional drafting. Never creates ApprovedFact objects."""
 
-import re
 from dataclasses import dataclass, field, replace
 
 from .cv import generate_cv_draft
@@ -22,6 +21,17 @@ class ProvisionalFact:
     category: object
     value: object
     evidence: tuple
+
+
+def _starts_entry(quote: str, role: str) -> bool:
+    """True when a quote is the role line that starts an entry, not a bullet."""
+    if not role:
+        return False
+    cleaned = quote.strip().lstrip("-\u2022*\u2013\u2014 ").strip().casefold()
+    if not cleaned.startswith(role):
+        return False
+    rest = cleaned[len(role):].lstrip()
+    return not rest or rest[0] in "|:\u00b7-\u2013\u2014" or rest.startswith("at ")
 
 
 def draft_from_source(source, job, *, trace=None, analysis=None):
@@ -137,48 +147,16 @@ def draft_from_source(source, job, *, trace=None, analysis=None):
             continue
         if p.category.value == "experience":
             # Do not combine positions solely because their generic roles match.
-            for index, e in enumerate(kept):
-                refs = [e]
-                doc = documents[e.document_id]
-                following = False
-                for segment_index, segment in enumerate(doc["segments"]):
-                    offset = 0
-                    for line in segment["text"].splitlines(keepends=True):
-                        text = line.strip()
-                        # Evidence offsets may point at the leading whitespace
-                        # of a source line while the line text itself is
-                        # stripped. Line membership must use the raw line
-                        # bounds, not the first non-space character.
-                        line_start = offset
-                        line_end = offset + len(line.rstrip("\r\n"))
-                        start = offset + len(line) - len(line.lstrip())
-                        end = offset + len(line.rstrip())
-                        if (
-                            segment_index == e.segment_index
-                            and line_start <= e.start < line_end
-                        ):
-                            following = True
-                        elif following and text:
-                            if not re.match(
-                                r"^(?:[-•]\s*)?(Built|Documented|Developed|Implemented|Designed|Led|Tested|Reduced|Improved|Created|Maintained|Delivered)\b",
-                                text,
-                                re.I,
-                            ):
-                                following = False
-                                break
-                            ref = replace(
-                                e,
-                                segment_index=segment_index,
-                                locator=segment["locator"],
-                                start=start,
-                                end=end,
-                                quote=segment["text"][start:end],
-                            )
-                            if not any(overlaps(ref, bad) for bad in unsafe):
-                                refs.append(ref)
-                        offset += len(line)
-                    if segment_index > e.segment_index and not following:
-                        break
+            # A new entry starts at each source line that begins with the role;
+            # the lines after it are that entry's contributions.
+            role = str(p.value.get("role", "")).strip().casefold()
+            groups: list[list] = []
+            for e in kept:
+                if not groups or _starts_entry(e.quote, role):
+                    groups.append([e])
+                else:
+                    groups[-1].append(e)
+            for index, refs in enumerate(groups):
                 fact_id = p.proposal_id + ":entry:" + str(index)
                 created_fact_ids.append(fact_id)
                 facts.append(

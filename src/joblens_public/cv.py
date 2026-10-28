@@ -236,6 +236,36 @@ def _sentence(value: str) -> str:
     return text
 
 
+def _clean_quote(value: str) -> str:
+    """Collapse whitespace and strip a leading list marker from a quote."""
+    text = " ".join(value.split())
+    while text and text[0] in "-\u2013\u2014\u2022*\u00b7 ":
+        text = text[1:].lstrip()
+    return text
+
+
+def _contributions(fact: ApprovedFact) -> list[str]:
+    """Return every source line in the entry except the entry line itself.
+
+    This is deliberately not a verb whitelist. A line belongs to the entry
+    because of where it appears in the source, not because of the word it
+    starts with; a lexical list silently dropped achievements such as
+    "Increased conversion by 18%".
+    """
+    if not fact.evidence:
+        return []
+    entry_quote = _clean_quote(fact.evidence[0].quote)
+    quotes: list[str] = []
+    for reference in fact.evidence:
+        text = _clean_quote(reference.quote)
+        if not text or text == entry_quote:
+            continue
+        if text.casefold() in {quote.casefold() for quote in quotes}:
+            continue
+        quotes.append(text)
+    return [_sentence(quote) for quote in quotes]
+
+
 def _fact_text(fact: ApprovedFact) -> str:
     value = fact.value
     if fact.category is Category.SKILL:
@@ -375,18 +405,13 @@ def generate_cv_draft(
     if experience_facts and skill_facts:
         primary = experience_facts[0]
         skills = [_display(str(f.value.get("name", ""))) for f in skill_facts[:2]]
-        contributions = [
-            _sentence(e.quote.strip())
-            for e in primary.evidence
-            if re.match(
-                r"^(Built|Documented|Developed|Implemented|Designed|Led|Tested|Reduced|Improved|Created|Maintained|Delivered)\b",
-                e.quote.strip(),
-                re.I,
-            )
-        ]
+        contributions = _contributions(primary)
         if contributions:
             role = _display(str(primary.value.get("role", "")))
-            text = f"{role} with experience in {' and '.join(skills)}. {contributions[0]}"
+            text = (
+                f"{role} with skills in {' and '.join(skills)}. "
+                f"{contributions[0]}"
+            )
             sections.append(
                 CvDraftSection(
                     "section_summary",
@@ -433,15 +458,7 @@ def generate_cv_draft(
                 text = " at ".join(x for x in (display_role, display_org) if x)
             else:
                 text = _fact_text(fact)
-            contribution_quotes = [
-                _sentence(quote)
-                for quote in dict.fromkeys(e.quote.strip() for e in fact.evidence)
-                if re.match(
-                    r"^(Built|Documented|Developed|Implemented|Designed|Led|Tested|Reduced|Improved|Created|Maintained|Delivered)\b",
-                    quote,
-                    re.I,
-                )
-            ]
+            contribution_quotes = _contributions(fact)
             item_text = "; ".join(contribution_quotes) if contribution_quotes else text
             items.append(
                 CvDraftItem(

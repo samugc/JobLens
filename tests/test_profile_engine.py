@@ -158,12 +158,16 @@ def test_no_years_dates_or_employers_are_proposed():
 
     experience = proposals_of(envelope, "experience")
     assert len(experience) == 1
+    # The structured value never derives an employer or a date.
     assert experience[0].value == {"role": "senior data engineer"}
-    serialized = json.dumps(envelope.as_dict())
-    assert "acme" not in serialized
-    assert "2020" not in serialized
-    assert "2023" not in serialized
-    assert "years" not in serialized
+    assert "acme" not in json.dumps(experience[0].value)
+    assert "2020" not in json.dumps(experience[0].value)
+    # The evidence is the exact source line, so it necessarily contains the
+    # employer and the dates. That is provenance, not a derived field: the
+    # draft uses the quotation for display and does not invent either value.
+    assert experience[0].evidence[0].quote == (
+        "Senior Data Engineer | Acme Corporation | 2020-2023"
+    )
 
 
 def test_a_job_title_is_not_read_as_a_degree():

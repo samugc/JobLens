@@ -349,7 +349,8 @@ def _normalize_heading(text: str) -> str:
     return " ".join(cleaned.split()).casefold()
 
 
-def _match_heading(text: str) -> str | None:
+def match_section_heading(text: str) -> str | None:
+    """Return the canonical section name for a heading line, or ``None``."""
     normalized = _normalize_heading(text)
     if not normalized or len(normalized) > 40:
         return None
@@ -679,6 +680,82 @@ def _extract_project(
     )
 
 
+_DATE_RANGE = re.compile(
+    r"\b(?:19|20)\d{2}\b\s*(?:-|\u2013|\u2014|to)\s*"
+    r"(?:(?:19|20)\d{2}|present|current)\b",
+    re.IGNORECASE,
+)
+
+#: Hard cap on lines attached to one entry, so a malformed document cannot
+#: turn an entire page into one proposal.
+_MAX_CONTRIBUTION_LINES = 12
+
+
+def _looks_like_entry_header(text: str) -> bool:
+    """True for a line that starts a new entry rather than continuing one."""
+    if _DATE_RANGE.search(text):
+        return True
+    split = _split_title(text)
+    if split is None:
+        return False
+    title, _ = split
+    return any(word in ROLE_TITLES for word in _normalize_value(title).split())
+
+
+def contribution_lines(
+    document: _Document,
+    segment: _Segment,
+    line: _Line,
+) -> list[tuple[_Segment, _Line]]:
+    """Return the source lines that belong to the entry starting at ``line``.
+
+    The rule is structural, not lexical: keep reading until a known section
+    heading, a new entry header, or the line cap. No verb list is involved, so
+    an achievement is never dropped because of the word it starts with.
+
+    DOCX extraction may place every paragraph in its own segment, so the walk
+    continues into later segments instead of stopping at the segment boundary.
+    """
+    segments = [segment] + [
+        item for item in document.segments if item.index > segment.index
+    ]
+    collected: list[tuple[_Segment, _Line]] = []
+    for segment_index, current in enumerate(segments):
+        lines = _iter_lines(current.text)
+        if segment_index == 0:
+            index = next(
+                (
+                    position
+                    for position, item in enumerate(lines)
+                    if item.start == line.start
+                ),
+                None,
+            )
+            if index is None:
+                return []
+            lines = lines[index + 1:]
+        for candidate in lines:
+            text = candidate.text.strip()
+            if not text:
+                continue
+            if match_section_heading(text) is not None:
+                return collected
+            if _looks_like_entry_header(text):
+                return collected
+            if text.isupper() and len(text.split()) <= 4:
+                # A short all-caps line is a heading even when the vocabulary
+                # does not know it (for example "VOLUNTEERING").
+                return collected
+            if _is_date_like(text) and len(text) <= 24:
+                # A standalone date or location line is entry metadata, not an
+                # achievement.
+                continue
+            collected.append((current, candidate))
+            if len(collected) >= _MAX_CONTRIBUTION_LINES:
+                return collected
+    return collected
+
+
 def _extract_role(
     document: _Document,
     segment: _Segment,
@@ -691,14 +768,43 @@ def _extract_role(
     words = _normalize_value(title).split()
     if not any(word in ROLE_TITLES for word in words):
         return []
-    return _title_candidate(
-        document,
-        segment,
-        line,
-        Category.EXPERIENCE,
-        (_normalize_value(title),),
-        {"role": _normalize_value(title)},
+    key = (_normalize_value(title),)
+    value = {"role": _normalize_value(title)}
+    candidates = list(
+        _title_candidate(
+            document,
+            segment,
+            line,
+            Category.EXPERIENCE,
+            key,
+            value,
+            whole_entry=True,
+        )
     )
+    # An experience entry is the role line *and* the source-backed lines that
+    # belong to it. Keeping those lines as exact evidence is what lets the
+    # draft preserve achievements; omitting them silently dropped every
+    # contribution whose first word was outside a small verb list.
+    for source_segment, contribution in contribution_lines(document, segment, line):
+        start = contribution.start + (
+            len(contribution.text) - len(contribution.text.lstrip())
+        )
+        end = contribution.start + len(contribution.text.rstrip())
+        if end <= start:
+            continue
+        candidates.append(
+            _candidate(
+                document,
+                source_segment,
+                Category.EXPERIENCE,
+                key,
+                value,
+                start,
+                end,
+                Support.EXPLICIT_CLAIM,
+            )
+        )
+    return candidates
 
 
 def _extract_certification(
@@ -1061,7 +1167,7 @@ def build_profile_proposals(response: Mapping[str, Any]) -> ProfileEnvelope:
             for line in _iter_lines(segment.text):
                 if not line.text.strip():
                     continue
-                heading = _match_heading(line.text)
+                heading = match_section_heading(line.text)
                 if heading is not None:
                     section = heading
                     continue

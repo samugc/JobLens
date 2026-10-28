@@ -132,7 +132,10 @@ def test_an_employment_claim_maps_through_containment():
     employment = matches_of(mapping, "employment")[0]
     assert employment.outcome == MATCHED
     assert employment.proposal_category == "experience"
-    assert employment.span_relation == "proposal_within_claim"
+    # The experience proposal now spans the whole entry line so that employer
+    # and dates survive into the draft; the employment claim spans the same
+    # line, so the relation is exact rather than containment.
+    assert employment.span_relation == "exact"
     assert employment.compatible_attributes == ("role",)
 
 

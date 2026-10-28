@@ -1,0 +1,642 @@
+{
+  "label": "exp1-dev",
+  "split": "development",
+  "metrics": {
+    "achievement_cases": 10,
+    "achievement_cases_ok": 10,
+    "achievement_checks": 62,
+    "achievement_checks_passed": 62,
+    "coverage_cases": 10,
+    "coverage_cases_ok": 10,
+    "requirements": 16,
+    "state_correct": 10,
+    "unsafe_cover": 6,
+    "covered_requirements": 9,
+    "covered_recalled": 9,
+    "partial_requirements": 3,
+    "partial_recalled": 0,
+    "uncovered_requirements": 4,
+    "uncovered_recalled": 1,
+    "importance_checks": 16,
+    "importance_correct": 16,
+    "duplicate_gap_entries": 0,
+    "report_support_false_claims": 1,
+    "report_support_missing": 2,
+    "coverage_report_inconsistent": 7,
+    "errors": 0
+  },
+  "achievement_cases": [
+    {
+      "case_id": "ach_nonverb_first",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Increased checkout conversion by 18%",
+          "passed": true,
+          "detail": "increased checkout conversion by 18% by rebuilding the payment service.; built python rest apis and automated tests. software engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "draft_experience:Built Python REST APIs and automated tests.",
+          "passed": true,
+          "detail": "increased checkout conversion by 18% by rebuilding the payment service.; built python rest apis and automated tests. software engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "draft_experience_absent:BSc in Computer Science",
+          "passed": true,
+          "detail": "increased checkout conversion by 18% by rebuilding the payment service.; built python rest apis and automated tests. software engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "pdf_preserved:Increased checkout conversion by 18% by rebuilding the payment service.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and sql. increased checkout conversion by 18% by rebuilding the payment service. experience software engineer fictional cedar labs 2021-2024 • increased checkout conversion by 18% by rebuilding the"
+        },
+        {
+          "name": "pdf_preserved:Built Python REST APIs and automated tests.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and sql. increased checkout conversion by 18% by rebuilding the payment service. experience software engineer fictional cedar labs 2021-2024 • increased checkout conversion by 18% by rebuilding the"
+        },
+        {
+          "name": "pdf_max_occurrences:BSc in Computer Science",
+          "passed": true,
+          "detail": "count=1 max=1"
+        },
+        {
+          "name": "docx_preserved:Increased checkout conversion by 18% by rebuilding the payment service.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and sql. increased checkout conversion by 18% by rebuilding the payment service. experience software engineer fictional cedar labs 2021-2024 increased checkout conversion by 18% by rebuilding the p"
+        },
+        {
+          "name": "docx_preserved:Built Python REST APIs and automated tests.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and sql. increased checkout conversion by 18% by rebuilding the payment service. experience software engineer fictional cedar labs 2021-2024 increased checkout conversion by 18% by rebuilding the p"
+        },
+        {
+          "name": "docx_max_occurrences:BSc in Computer Science",
+          "passed": true,
+          "detail": "count=1 max=1"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_mixed_verbs",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Managed a team of four engineers",
+          "passed": true,
+          "detail": "built python rest apis and automated tests.; managed a team of four engineers across two time zones.; reduced deployment time from 40 minutes to 6 minutes. software engineer fictional cedar labs 2020-"
+        },
+        {
+          "name": "draft_experience:Reduced deployment time from 40 minutes to 6 minutes.",
+          "passed": true,
+          "detail": "built python rest apis and automated tests.; managed a team of four engineers across two time zones.; reduced deployment time from 40 minutes to 6 minutes. software engineer fictional cedar labs 2020-"
+        },
+        {
+          "name": "pdf_preserved:Built Python REST APIs and automated tests.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2020-2024 • built python rest apis and automated tests.; managed a team of four engineers a"
+        },
+        {
+          "name": "pdf_preserved:Managed a team of four engineers across two time zones.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2020-2024 • built python rest apis and automated tests.; managed a team of four engineers a"
+        },
+        {
+          "name": "pdf_preserved:Reduced deployment time from 40 minutes to 6 minutes.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2020-2024 • built python rest apis and automated tests.; managed a team of four engineers a"
+        },
+        {
+          "name": "docx_preserved:Built Python REST APIs and automated tests.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2020-2024 built python rest apis and automated tests.; managed a team of four engineers acr"
+        },
+        {
+          "name": "docx_preserved:Managed a team of four engineers across two time zones.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2020-2024 built python rest apis and automated tests.; managed a team of four engineers acr"
+        },
+        {
+          "name": "docx_preserved:Reduced deployment time from 40 minutes to 6 minutes.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2020-2024 built python rest apis and automated tests.; managed a team of four engineers acr"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_bullet_markers",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Led migration",
+          "passed": true,
+          "detail": "led migration of the reporting stack to postgresql.; negotiated a 12% reduction in vendor costs. data analyst fictional harbor 2019-2023"
+        },
+        {
+          "name": "draft_experience:Negotiated a 12% reduction",
+          "passed": true,
+          "detail": "led migration of the reporting stack to postgresql.; negotiated a 12% reduction in vendor costs. data analyst fictional harbor 2019-2023"
+        },
+        {
+          "name": "draft_experience_absent:•",
+          "passed": true,
+          "detail": "led migration of the reporting stack to postgresql.; negotiated a 12% reduction in vendor costs. data analyst fictional harbor 2019-2023"
+        },
+        {
+          "name": "pdf_preserved:Led migration of the reporting stack to PostgreSQL.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in sql and python. led migration of the reporting stack to postgresql. experience data analyst fictional harbor 2019-2023 • led migration of the reporting stack to postgresql.; negotiated a 12% reduction in vendo"
+        },
+        {
+          "name": "pdf_preserved:Negotiated a 12% reduction in vendor costs.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in sql and python. led migration of the reporting stack to postgresql. experience data analyst fictional harbor 2019-2023 • led migration of the reporting stack to postgresql.; negotiated a 12% reduction in vendo"
+        },
+        {
+          "name": "docx_preserved:Led migration of the reporting stack to PostgreSQL.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in sql and python. led migration of the reporting stack to postgresql. experience data analyst fictional harbor 2019-2023 led migration of the reporting stack to postgresql.; negotiated a 12% reduction in vendor "
+        },
+        {
+          "name": "docx_preserved:Negotiated a 12% reduction in vendor costs.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in sql and python. led migration of the reporting stack to postgresql. experience data analyst fictional harbor 2019-2023 led migration of the reporting stack to postgresql.; negotiated a 12% reduction in vendor "
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_section_boundary",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Automated nightly reconciliation reports.",
+          "passed": true,
+          "detail": "automated nightly reconciliation reports. software engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "pdf_preserved:Automated nightly reconciliation reports.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. automated nightly reconciliation reports. experience software engineer fictional cedar labs 2021-2024 • automated nightly reconciliation reports. education bsc in computer science, fictional north"
+        },
+        {
+          "name": "pdf_preserved:BSc in Computer Science",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. automated nightly reconciliation reports. experience software engineer fictional cedar labs 2021-2024 • automated nightly reconciliation reports. education bsc in computer science, fictional north"
+        },
+        {
+          "name": "pdf_max_occurrences:BSc in Computer Science",
+          "passed": true,
+          "detail": "count=1 max=1"
+        },
+        {
+          "name": "docx_preserved:Automated nightly reconciliation reports.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. automated nightly reconciliation reports. experience software engineer fictional cedar labs 2021-2024 automated nightly reconciliation reports. education bsc in computer science, fictional northbr"
+        },
+        {
+          "name": "docx_preserved:BSc in Computer Science",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. automated nightly reconciliation reports. experience software engineer fictional cedar labs 2021-2024 automated nightly reconciliation reports. education bsc in computer science, fictional northbr"
+        },
+        {
+          "name": "docx_max_occurrences:BSc in Computer Science",
+          "passed": true,
+          "detail": "count=1 max=1"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_adjacent_entries",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Built SQL reports",
+          "passed": true,
+          "detail": "built sql reports for operations teams. data analyst fictional harbor 2019-2021 owned the ingestion roadmap for three regions. software engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "draft_experience:Owned the ingestion roadmap",
+          "passed": true,
+          "detail": "built sql reports for operations teams. data analyst fictional harbor 2019-2021 owned the ingestion roadmap for three regions. software engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "pdf_preserved:Built SQL reports for operations teams.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in python and sql. built sql reports for operations teams. experience data analyst fictional harbor 2019-2021 • built sql reports for operations teams. software engineer fictional cedar labs 2021-2024 • owned the"
+        },
+        {
+          "name": "pdf_preserved:Owned the ingestion roadmap for three regions.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in python and sql. built sql reports for operations teams. experience data analyst fictional harbor 2019-2021 • built sql reports for operations teams. software engineer fictional cedar labs 2021-2024 • owned the"
+        },
+        {
+          "name": "docx_preserved:Built SQL reports for operations teams.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in python and sql. built sql reports for operations teams. experience data analyst fictional harbor 2019-2021 built sql reports for operations teams. software engineer fictional cedar labs 2021-2024 owned the ing"
+        },
+        {
+          "name": "docx_preserved:Owned the ingestion roadmap for three regions.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in python and sql. built sql reports for operations teams. experience data analyst fictional harbor 2019-2021 built sql reports for operations teams. software engineer fictional cedar labs 2021-2024 owned the ing"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_numeric_exact",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Grew the platform team from 3 to 11 engineers.",
+          "passed": true,
+          "detail": "grew the platform team from 3 to 11 engineers.; cut cloud spend by $2.4m over two years. engineering manager fictional cedar labs 2018-2024"
+        },
+        {
+          "name": "draft_experience:$2.4M",
+          "passed": true,
+          "detail": "grew the platform team from 3 to 11 engineers.; cut cloud spend by $2.4m over two years. engineering manager fictional cedar labs 2018-2024"
+        },
+        {
+          "name": "pdf_preserved:Grew the platform team from 3 to 11 engineers.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary engineering manager with skills in python. grew the platform team from 3 to 11 engineers. experience engineering manager fictional cedar labs 2018-2024 • grew the platform team from 3 to 11 engineers.; cut cloud spend by $2.4m over two y"
+        },
+        {
+          "name": "pdf_preserved:Cut cloud spend by $2.4M over two years.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary engineering manager with skills in python. grew the platform team from 3 to 11 engineers. experience engineering manager fictional cedar labs 2018-2024 • grew the platform team from 3 to 11 engineers.; cut cloud spend by $2.4m over two y"
+        },
+        {
+          "name": "docx_preserved:Grew the platform team from 3 to 11 engineers.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary engineering manager with skills in python. grew the platform team from 3 to 11 engineers. experience engineering manager fictional cedar labs 2018-2024 grew the platform team from 3 to 11 engineers.; cut cloud spend by $2.4m over two yea"
+        },
+        {
+          "name": "docx_preserved:Cut cloud spend by $2.4M over two years.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary engineering manager with skills in python. grew the platform team from 3 to 11 engineers. experience engineering manager fictional cedar labs 2018-2024 grew the platform team from 3 to 11 engineers.; cut cloud spend by $2.4m over two yea"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_unicode",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:España and México",
+          "passed": true,
+          "detail": "improved conversion for españa and méxico by 9%. data analyst fictional harbor 2019-2024"
+        },
+        {
+          "name": "pdf_preserved:Improved conversion for España and México by 9%.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in python and sql. improved conversion for españa and méxico by 9%. experience data analyst fictional harbor 2019-2024 • improved conversion for españa and méxico by 9%. education bsc in computer science. skills "
+        },
+        {
+          "name": "docx_preserved:Improved conversion for España and México by 9%.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary data analyst with skills in python and sql. improved conversion for españa and méxico by 9%. experience data analyst fictional harbor 2019-2024 improved conversion for españa and méxico by 9%. education bsc in computer science. skills py"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_long_line",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:Coordinated the migration",
+          "passed": true,
+          "detail": "coordinated the migration of eleven internal services to a shared deployment pipeline, documented rollback procedures, and trained four teams on the new release process. software engineer fictional ce"
+        },
+        {
+          "name": "draft_experience:trained four teams",
+          "passed": true,
+          "detail": "coordinated the migration of eleven internal services to a shared deployment pipeline, documented rollback procedures, and trained four teams on the new release process. software engineer fictional ce"
+        },
+        {
+          "name": "pdf_preserved:Coordinated the migration of eleven internal services",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. coordinated the migration of eleven internal services to a shared deployment pipeline, documented rollback procedures, and trained four teams on the new release process. experience software engine"
+        },
+        {
+          "name": "pdf_preserved:trained four teams on the new release process",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. coordinated the migration of eleven internal services to a shared deployment pipeline, documented rollback procedures, and trained four teams on the new release process. experience software engine"
+        },
+        {
+          "name": "docx_preserved:Coordinated the migration of eleven internal services",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. coordinated the migration of eleven internal services to a shared deployment pipeline, documented rollback procedures, and trained four teams on the new release process. experience software engine"
+        },
+        {
+          "name": "docx_preserved:trained four teams on the new release process",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. coordinated the migration of eleven internal services to a shared deployment pipeline, documented rollback procedures, and trained four teams on the new release process. experience software engine"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_two_documents",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience_item_count",
+          "passed": true,
+          "detail": "count=2 max=2"
+        },
+        {
+          "name": "draft_experience:Built Python REST APIs",
+          "passed": true,
+          "detail": "built python rest apis and automated tests. software engineer fictional cedar labs 2021-2024 increased test coverage from 61% to 88%. software engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "draft_experience:Increased test coverage",
+          "passed": true,
+          "detail": "built python rest apis and automated tests. software engineer fictional cedar labs 2021-2024 increased test coverage from 61% to 88%. software engineer fictional cedar labs 2021-2024"
+        },
+        {
+          "name": "pdf_preserved:Built Python REST APIs and automated tests.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in docker and python. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 • built python rest apis and automated tests. software engineer fictional cedar l"
+        },
+        {
+          "name": "pdf_preserved:Increased test coverage from 61% to 88%.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in docker and python. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 • built python rest apis and automated tests. software engineer fictional cedar l"
+        },
+        {
+          "name": "docx_preserved:Built Python REST APIs and automated tests.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in docker and python. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 built python rest apis and automated tests. software engineer fictional cedar lab"
+        },
+        {
+          "name": "docx_preserved:Increased test coverage from 61% to 88%.",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in docker and python. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 built python rest apis and automated tests. software engineer fictional cedar lab"
+        }
+      ],
+      "error": null
+    },
+    {
+      "case_id": "ach_no_terminal_period",
+      "ok": true,
+      "checks": [
+        {
+          "name": "draft_experience:rewrote the billing reconciliation job",
+          "passed": true,
+          "detail": "rewrote the billing reconciliation job. software engineer fictional cedar labs 2022-2024"
+        },
+        {
+          "name": "pdf_preserved:rewrote the billing reconciliation job",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. rewrote the billing reconciliation job. experience software engineer fictional cedar labs 2022-2024 • rewrote the billing reconciliation job. education bsc in computer science. skills python"
+        },
+        {
+          "name": "docx_preserved:rewrote the billing reconciliation job",
+          "passed": true,
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python. rewrote the billing reconciliation job. experience software engineer fictional cedar labs 2022-2024 rewrote the billing reconciliation job. education bsc in computer science. skills python"
+        }
+      ],
+      "error": null
+    }
+  ],
+  "coverage_cases": [
+    {
+      "case_id": "cov_generic_word",
+      "requirements": [
+        {
+          "text": "Experience with Rust",
+          "gold_state": "uncovered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "Python",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [
+        "rust"
+      ],
+      "error": null
+    },
+    {
+      "case_id": "cov_multi_term_partial",
+      "requirements": [
+        {
+          "text": "Python and SQL",
+          "gold_state": "partial",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [
+        "sql"
+      ],
+      "error": null
+    },
+    {
+      "case_id": "cov_alias_postgres",
+      "requirements": [
+        {
+          "text": "Production experience with Postgres",
+          "gold_state": "partial",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "cov_tenure_unverified",
+      "requirements": [
+        {
+          "text": "5+ years of production Kubernetes experience",
+          "gold_state": "partial",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "Python",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "cov_preferred_not_required",
+      "requirements": [
+        {
+          "text": "Python",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "Terraform",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "preferred",
+          "predicted_importance": "preferred",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "cov_absent",
+      "requirements": [
+        {
+          "text": "Kubernetes",
+          "gold_state": "uncovered",
+          "predicted_state": "uncovered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [
+        "Kubernetes"
+      ],
+      "error": null
+    },
+    {
+      "case_id": "cov_responsibility",
+      "requirements": [
+        {
+          "text": "Build reliable data pipelines",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "responsibility",
+          "predicted_importance": "responsibility",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "Python",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "cov_keyword_collision",
+      "requirements": [
+        {
+          "text": "Go",
+          "gold_state": "uncovered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "SQL",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "cov_communication",
+      "requirements": [
+        {
+          "text": "Excellent written communication skills",
+          "gold_state": "uncovered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        },
+        {
+          "text": "Python",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": true,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    },
+    {
+      "case_id": "cov_multi_document",
+      "requirements": [
+        {
+          "text": "Python and SQL",
+          "gold_state": "covered",
+          "predicted_state": "covered",
+          "gold_importance": "required",
+          "predicted_importance": "required",
+          "supported_in_report": false,
+          "coverage_entry_present": false
+        }
+      ],
+      "duplicate_gap_entries": 0,
+      "unmet": [],
+      "error": null
+    }
+  ]
+}
