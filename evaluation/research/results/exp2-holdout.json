@@ -1,5 +1,5 @@
 {
-  "label": "exp2-holdout",
+  "label": "exp2-holdout-v2",
   "split": "holdout",
   "metrics": {
     "achievement_cases": 6,

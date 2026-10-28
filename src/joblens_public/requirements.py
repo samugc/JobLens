@@ -563,20 +563,53 @@ def _evidence_tokens(evidence_texts: Sequence[str]) -> set[str]:
     return tokens
 
 
+def _substantive_keys(requirement: Requirement) -> set[str]:
+    """Keys of the technology/content elements a qualifier or tenure modifies."""
+    return {
+        element.key for element in requirement.elements
+        if element.kind in ("technology", "content")
+    }
+
+
+def _cooccurs(text: str, keys: set[str]) -> bool:
+    """True when ``text`` states at least one substantive element of the requirement."""
+    if not keys:
+        return True
+    if any(_mentions_technology(text, key) for key in keys if key in _ALIASES or key in {c for c, _ in _SURFACES}):
+        return True
+    # Content keys are stemmed tokens; check the raw text tokens.
+    text_tokens = {_stem(raw) for raw in _WORD_RE.findall(text.casefold())}
+    return bool(keys & text_tokens)
+
+
 def _element_evidenced(
     element: Element,
-    evidence_texts: Sequence[str],
-    evidence_tokens: set[str],
-    evidence_tenure_months: int,
+    texts: Sequence[str],
+    tokens: set[str],
+    requirement: Requirement,
 ) -> bool:
+    substantive = _substantive_keys(requirement)
     if element.kind == "technology":
-        return any(
-            _mentions_technology(text, element.key) for text in evidence_texts
-        )
+        return any(_mentions_technology(text, element.key) for text in texts)
     if element.kind == "tenure":
-        return evidence_tenure_months >= int(element.key.split(":", 1)[1])
-    # Qualifiers and content terms are token matches.
-    return element.key in evidence_tokens
+        required_months = int(element.key.split(":", 1)[1])
+        return any(
+            _tenure_months(match) >= required_months
+            and _cooccurs(text, substantive)
+            for text in texts
+            for match in _TENURE_RE.finditer(text)
+        )
+    if element.kind == "qualifier":
+        # A qualifier such as "production" must be stated in the same evidence
+        # as a substantive element of the requirement. Pooling qualifiers across
+        # unrelated evidence is what created the cross-evidence conflation.
+        return any(
+            _PRODUCTION_RE.search(text) is not None and _cooccurs(text, substantive)
+            for text in texts
+        )
+    # Content terms are matched as a union across evidence (a requirement may
+    # be evidenced across documents), but never a qualifier or tenure.
+    return element.key in tokens
 
 
 def assess_requirement(
@@ -590,11 +623,10 @@ def assess_requirement(
     """
     texts = [str(text) for text in evidence_texts if str(text).strip()]
     tokens = _evidence_tokens(texts)
-    tenure = max((_tenure_months(match) for text in texts for match in _TENURE_RE.finditer(text)), default=0)
     evidenced: list[Element] = []
     missing: list[Element] = []
     for element in requirement.elements:
-        if _element_evidenced(element, texts, tokens, tenure):
+        if _element_evidenced(element, texts, tokens, requirement):
             evidenced.append(element)
         else:
             missing.append(element)

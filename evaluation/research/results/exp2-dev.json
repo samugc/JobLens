@@ -1,5 +1,5 @@
 {
-  "label": "exp2-dev",
+  "label": "exp2-dev-v2",
   "split": "development",
   "metrics": {
     "achievement_cases": 10,
@@ -364,22 +364,22 @@
         {
           "name": "pdf_preserved:Built Python REST APIs and automated tests.",
           "passed": true,
-          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 • built python rest apis and automated tests. software engineer fictional cedar l"
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in docker and python. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 • built python rest apis and automated tests. software engineer fictional cedar l"
         },
         {
           "name": "pdf_preserved:Increased test coverage from 61% to 88%.",
           "passed": true,
-          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 • built python rest apis and automated tests. software engineer fictional cedar l"
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in docker and python. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 • built python rest apis and automated tests. software engineer fictional cedar l"
         },
         {
           "name": "docx_preserved:Built Python REST APIs and automated tests.",
           "passed": true,
-          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 built python rest apis and automated tests. software engineer fictional cedar lab"
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in docker and python. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 built python rest apis and automated tests. software engineer fictional cedar lab"
         },
         {
           "name": "docx_preserved:Increased test coverage from 61% to 88%.",
           "passed": true,
-          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in python and docker. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 built python rest apis and automated tests. software engineer fictional cedar lab"
+          "detail": "fictional candidate fictional@example.com professional summary software engineer with skills in docker and python. built python rest apis and automated tests. experience software engineer fictional cedar labs 2021-2024 built python rest apis and automated tests. software engineer fictional cedar lab"
         }
       ],
       "error": null
