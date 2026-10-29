@@ -27,9 +27,13 @@ def _adapt(draft: Any) -> CanonicalDraft:
     return canonical
 
 
-def _validate(draft: CanonicalDraft, evidence_support: Any) -> None:
+def _validate(
+    draft: CanonicalDraft, evidence_support: Any, allow_unverified: bool
+) -> None:
     try:
-        validate_export(draft, evidence_support=evidence_support)
+        validate_export(
+            draft, evidence_support=evidence_support, allow_unverified=allow_unverified
+        )
     except Exception as exc:
         from .errors import CvExportError
 
@@ -62,11 +66,12 @@ def export_cv_pdf(
     *,
     page_size: str = "A4",
     evidence_support: Any = None,
+    allow_unverified: bool = False,
     filename: str | None = None,
 ) -> Any:
     """Export a CvDraft to a PDF file. Returns the destination path (or buffer)."""
     canonical = _adapt(draft)
-    _validate(canonical, evidence_support)
+    _validate(canonical, evidence_support, allow_unverified)
     target = _open_destination(
         destination,
         default_name=filename or canonical.candidate.full_name or "cv",
@@ -92,10 +97,11 @@ def export_cv_docx(
     destination: Any,
     *,
     evidence_support: Any = None,
+    allow_unverified: bool = False,
     filename: str | None = None,
 ) -> Any:
     canonical = _adapt(draft)
-    _validate(canonical, evidence_support)
+    _validate(canonical, evidence_support, allow_unverified)
     target = _open_destination(
         destination,
         default_name=filename or canonical.candidate.full_name or "cv",
@@ -121,9 +127,10 @@ def export_cv_pdf_bytes(
     *,
     page_size: str = "A4",
     evidence_support: Any = None,
+    allow_unverified: bool = False,
 ) -> bytes:
     canonical = _adapt(draft)
-    _validate(canonical, evidence_support)
+    _validate(canonical, evidence_support, allow_unverified)
     try:
         return render_pdf_bytes(canonical, page_size=page_size)
     except Exception as exc:
@@ -138,9 +145,10 @@ def export_cv_docx_bytes(
     draft: Any,
     *,
     evidence_support: Any = None,
+    allow_unverified: bool = False,
 ) -> bytes:
     canonical = _adapt(draft)
-    _validate(canonical, evidence_support)
+    _validate(canonical, evidence_support, allow_unverified)
     try:
         return render_docx_bytes(canonical)
     except Exception as exc:

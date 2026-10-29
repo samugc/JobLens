@@ -330,14 +330,6 @@ def adapt_draft(draft: Any) -> CanonicalDraft:
     warnings = _to_str_tuple(payload.get("warnings", []), "warnings")
     unmet = _to_str_tuple(payload.get("unmet_requirements", []), "unmet_requirements")
 
-    evidence_mode = payload.get("evidence_mode", "cited_facts")
-    if evidence_mode is None:
-        evidence_mode = "cited_facts"
-    if evidence_mode not in ("cited_facts", "unverified"):
-        raise InvalidDraftError(
-            "evidence_mode must be 'cited_facts' or 'unverified'"
-        )
-
     return CanonicalDraft(
         cv_draft_version=version,
         target_job=target_job,
@@ -345,7 +337,6 @@ def adapt_draft(draft: Any) -> CanonicalDraft:
         sections=sections,
         warnings=warnings,
         unmet_requirements=unmet,
-        evidence_mode=evidence_mode,
         raw=draft,
     )
 
@@ -354,15 +345,19 @@ def validate_export(
     draft: CanonicalDraft,
     *,
     evidence_support: Any = None,
+    allow_unverified: bool = False,
 ) -> None:
     """Raise on any blocking condition. Returns None if export is allowed.
 
     ``evidence_support`` is the set of approved fact ids that may be cited. When
-    it is omitted the draft is only renderable if it declares
-    ``evidence_mode="unverified"``; otherwise there is no way to tell a real
-    approved fact from an invented identifier, so export fails closed. Passing
-    support checks identifier membership only: it does not prove that an item's
-    wording is entailed by the facts it cites.
+    it is omitted there is no way to tell a real approved fact from an invented
+    identifier, so export fails closed. ``allow_unverified`` is the only bypass
+    and is a Python argument on purpose: it must never be reachable from draft
+    JSON, a request field, or an environment variable, so a caller cannot be
+    tricked into disabling verification by data it merely forwards.
+
+    Passing support checks identifier membership only: it does not prove that an
+    item's wording is entailed by the facts it cites.
     """
     # Candidate contact.
     if not draft.candidate.full_name or not draft.candidate.full_name.strip():
@@ -387,11 +382,10 @@ def validate_export(
 
     # Evidence-support contract validation.
     if evidence_support is None:
-        if draft.evidence_mode != "unverified":
+        if not allow_unverified:
             raise EvidenceContractError(
                 "cannot verify cited fact ids without evidence support; pass "
-                "evidence_support or declare the draft as unverified rendering "
-                "input"
+                "evidence_support, or allow_unverified=True for rendering-only use"
             )
         return
     fact_ids = _extract_fact_ids(evidence_support)

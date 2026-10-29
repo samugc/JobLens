@@ -753,7 +753,9 @@ def make_handler(
                         trace=trace,
                         analysis=analysis,
                     )
-                    value = review_guard.issue_draft(draft)
+                    value = review_guard.issue_draft(
+                        draft, provisional_evidence=evidence
+                    )
                     value['review']['baseline']['review_mode'] = 'provisional'
                     value['review']['baseline']['evidence'] = evidence
                     value['review']['receipt'] = review_guard.sign('baseline', value['review']['baseline'])
@@ -872,7 +874,7 @@ def make_handler(
             except Exception as exc:
                 self._json(500, {"error": str(exc)[:300]})
                 return
-            issued = review_guard.issue_draft(draft)
+            issued = review_guard.issue_draft(draft, approved_profile=profile)
             if isinstance(source, dict) and source.get("documents"):
                 documents = {
                     str(document.get("document_id")): str(

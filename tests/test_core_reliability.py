@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import copy
 import json
+import types
 
 import pytest
 import test_cv_profile_api
@@ -556,7 +557,12 @@ def _reviewable_draft() -> CvDraft:
 
 def test_changing_contact_after_confirmation_invalidates_the_final_receipt():
     guard = ReviewGuard()
-    value = guard.issue_draft(_reviewable_draft())
+    # Export requires an independent, server-issued evidence authority record;
+    # a draft issued with no validated profile cannot authorise documentary ids.
+    profile = types.SimpleNamespace(
+        facts=[types.SimpleNamespace(fact_id="fact_python")]
+    )
+    value = guard.issue_draft(_reviewable_draft(), approved_profile=profile)
     confirmed = guard.confirm_all(value, True, True)
 
     # The exact confirmed contact exports.

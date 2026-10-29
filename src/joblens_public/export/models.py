@@ -57,7 +57,6 @@ class CanonicalDraft:
     sections: tuple[CanonicalSection, ...]
     warnings: tuple[str, ...] = ()
     unmet_requirements: tuple[str, ...] = ()
-    evidence_mode: str = "cited_facts"
     raw: Any = None
 
 

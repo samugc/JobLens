@@ -1,8 +1,17 @@
-"""Stateless, process-local review receipts. No candidate data is stored here.
+"""Stateless, process-local review receipts and evidence authority.
 
-Receipts bind approvals to exact content, not client IDs or review labels.
-Restarting the server invalidates receipts; portable profiles are revalidated
-against their bundled source and explicitly confirmed again.
+No candidate data is stored here. Receipts bind approvals to exact content, not
+client IDs or review labels. Restarting the server invalidates receipts;
+portable profiles are revalidated against their bundled source and explicitly
+confirmed again.
+
+Each issued draft also carries an ``authority`` record: an HMAC over the fact
+ids the server validated (approved profile facts or provisional source-backed
+facts), the documentary citations bound to each item, and the session id. Export
+verifies that record, so a client cannot authorise a new identifier by editing
+the draft. Candidate attestations stay outside that record: they are bound by
+the per-item receipt (content, contact and mode) and are rendered with an
+``attestation:<item_id>`` citation rather than a fact id.
 """
 
 from __future__ import annotations
@@ -95,7 +104,15 @@ class ReviewGuard:
         self.verify("profile", value, receipt)
         return import_approved_profile(value, source_response=value["source"])
 
-    def issue_draft(self, draft):
+    def issue_draft(self, draft, *, approved_profile=None, provisional_evidence=None):
+        """Issue a draft with a signed record of the evidence it may cite.
+
+        The authority record is built from server-validated input only: the
+        approved profile's facts, or the source-backed provisional fact ids.
+        It is never derived from the draft's own citation lists, which the
+        client can edit. It binds the allowed ids, each item's documentary
+        citations, and this server session into one HMAC.
+        """
         value = draft.as_dict()
         value["review"] = {
             "baseline": draft.as_dict(),
@@ -104,7 +121,62 @@ class ReviewGuard:
             "session_id": self.session_id,
         }
         value["review"]["receipt"] = self.sign("baseline", value["review"]["baseline"])
+        value["review"]["authority"] = self._authority_record(
+            draft, approved_profile, provisional_evidence
+        )
         return value
+
+    def _authority_record(self, draft, approved_profile, provisional_evidence):
+        if approved_profile is not None:
+            basis = "approved_profile"
+            fact_ids = sorted({str(fact.fact_id) for fact in approved_profile.facts})
+        elif provisional_evidence is not None:
+            basis = "provisional_source"
+            fact_ids = sorted({str(fact_id) for fact_id in provisional_evidence})
+        else:
+            basis = "none"
+            fact_ids = []
+        record = {
+            "session_id": self.session_id,
+            "basis": basis,
+            "fact_ids": fact_ids,
+            "items": {
+                item.item_id: sorted(str(fid) for fid in item.approved_fact_ids)
+                for section in draft.sections
+                for item in section.items
+            },
+        }
+        record["receipt"] = self.sign("authority", record)
+        return record
+
+    def _trusted_authority(self, payload):
+        """Return the verified allowed fact ids and per-item mapping."""
+        authority = payload["review"].get("authority")
+        if not isinstance(authority, dict):
+            raise ReviewValidationError(
+                "missing_authority",
+                "This draft has no evidence authority record. Generate a new draft "
+                "and review it again.",
+            )
+        unsigned = {key: value for key, value in authority.items() if key != "receipt"}
+        self.verify("authority", unsigned, authority.get("receipt"))
+        if unsigned.get("session_id") != self.session_id:
+            raise ReviewValidationError(
+                "session_expired",
+                "This draft belongs to an earlier server session. Generate a new "
+                "draft and review it again.",
+            )
+        fact_ids = unsigned.get("fact_ids")
+        items = unsigned.get("items")
+        if (
+            not isinstance(fact_ids, list)
+            or not all(isinstance(fid, str) for fid in fact_ids)
+            or not isinstance(items, dict)
+        ):
+            raise ReviewValidationError(
+                "invalid_request", "The evidence authority record is malformed."
+            )
+        return set(fact_ids), items
 
     def draft(self, payload):
         if not isinstance(payload, dict) or not isinstance(payload.get("review"), dict):
@@ -192,6 +264,7 @@ class ReviewGuard:
 
     def export(self, payload, confirmed, contact):
         draft = self.draft(payload)
+        allowed_ids, documentary = self._trusted_authority(payload)
         if (
             payload["review"]["baseline"].get("review_mode") == "provisional"
             or payload["review"].get("final_receipt")
@@ -202,7 +275,8 @@ class ReviewGuard:
         if not draft.candidate.full_name or not draft.sections:
             raise ValueError("Name and reviewed CV content are required")
         value = draft.as_dict()
-        support = []
+        support: list[str] = []
+        attested_ids: list[str] = []
         for section, out_section in zip(draft.sections, value["sections"]):
             for item, out_item in zip(section.items, out_section["items"]):
                 approval = payload["review"]["approvals"].get(item.item_id, {})
@@ -222,8 +296,30 @@ class ReviewGuard:
                 # labelled in the review model, never represented as a source fact.
                 if approval["mode"] == "candidate_attested":
                     out_item["approved_fact_ids"] = ["attestation:" + item.item_id]
+                    attested_ids.append("attestation:" + item.item_id)
+                else:
+                    # Documentary wording must cite exactly what the signed
+                    # authority bound to this item, and every id must exist in
+                    # the server-validated fact set.
+                    expected = documentary.get(item.item_id)
+                    if not isinstance(expected, list) or sorted(
+                        item.approved_fact_ids
+                    ) != sorted(str(fid) for fid in expected):
+                        raise ReviewValidationError(
+                            "evidence_mismatch",
+                            "An item cites evidence that was not issued for it. "
+                            "Generate a new draft.",
+                        )
+                    if not set(item.approved_fact_ids) <= allowed_ids:
+                        raise ReviewValidationError(
+                            "unknown_evidence",
+                            "An item cites evidence that is not part of a validated "
+                            "source. Generate a new draft.",
+                        )
                 support.extend(out_item["approved_fact_ids"])
-        return value, support
+        # The support handed to the renderer is the authority set, not the
+        # draft's own citation list, plus the attestations actually confirmed.
+        return value, sorted(allowed_ids | set(attested_ids))
 
     def confirm_all(self, payload, confirmed, attested):
         parsed = self.draft(payload)

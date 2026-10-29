@@ -88,4 +88,4 @@ def test_parser_edited_item_blocks_export():
         draft = edit_cv_item(draft, iid, "Rewritten summary")
         from joblens_public.export.errors import CvExportError
         with pytest.raises(CvExportError):
-            export_cv_pdf_bytes(draft)
+            export_cv_pdf_bytes(draft, allow_unverified=True)

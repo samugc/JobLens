@@ -18,28 +18,28 @@ from .test_helpers import make_draft
 def test_invalid_schema_version():
     d = make_draft(cv_draft_version="9.9")
     with pytest.raises(UnsupportedSchemaError):
-        export_cv_pdf_bytes(d)
+        export_cv_pdf_bytes(d, allow_unverified=True)
 
 
 def test_missing_full_name():
     d = make_draft()
     d["candidate"]["full_name"] = None
     with pytest.raises(ContactError):
-        export_cv_pdf_bytes(d)
+        export_cv_pdf_bytes(d, allow_unverified=True)
 
 
 def test_unapproved_item():
     d = make_draft()
     d["sections"][0]["items"][0]["review_status"] = "needs_review"
     with pytest.raises(ApprovalError):
-        export_cv_pdf_bytes(d)
+        export_cv_pdf_bytes(d, allow_unverified=True)
 
 
 def test_missing_fact_ids():
     d = make_draft()
     d["sections"][0]["items"][0]["approved_fact_ids"] = []
     with pytest.raises(EvidenceContractError):
-        export_cv_pdf_bytes(d)
+        export_cv_pdf_bytes(d, allow_unverified=True)
 
 
 def test_edited_item_not_reapproved():
@@ -50,7 +50,7 @@ def test_edited_item_not_reapproved():
     # Actually edited item should be needs_review; approval required.
     d["sections"][0]["items"][0]["review_status"] = "needs_review"
     with pytest.raises(ApprovalError):
-        export_cv_docx_bytes(d)
+        export_cv_docx_bytes(d, allow_unverified=True)
 
 
 def test_invalid_evidence_contract():
@@ -74,7 +74,7 @@ def test_evidence_contract_valid():
 
 def test_malformed_draft_not_mapping():
     with pytest.raises(InvalidDraftError):
-        export_cv_pdf_bytes("not a draft")
+        export_cv_pdf_bytes("not a draft", allow_unverified=True)
 
 
 def test_missing_sections_field_ok():
@@ -82,7 +82,7 @@ def test_missing_sections_field_ok():
     del d["sections"]
     # no items -> invalid
     with pytest.raises(InvalidDraftError):
-        export_cv_pdf_bytes(d)
+        export_cv_pdf_bytes(d, allow_unverified=True)
 
 
 def test_empty_items_rejected():
@@ -91,7 +91,7 @@ def test_empty_items_rejected():
     d["sections"][1]["items"] = []
     d["sections"][2]["items"] = []
     with pytest.raises(InvalidDraftError):
-        export_cv_pdf_bytes(d)
+        export_cv_pdf_bytes(d, allow_unverified=True)
 
 
 def test_invalid_review_status():
@@ -99,11 +99,11 @@ def test_invalid_review_status():
     d["sections"][0]["items"][0]["review_status"] = "maybe"
     # adapter allows string; validate requires approved -> ApprovalError (not approved)
     with pytest.raises(ApprovalError):
-        export_cv_pdf_bytes(d)
+        export_cv_pdf_bytes(d, allow_unverified=True)
 
 
 def test_schema_invalid_missing_item_id():
     d = make_draft()
     del d["sections"][0]["items"][0]["item_id"]
     with pytest.raises(InvalidDraftError):
-        export_cv_pdf_bytes(d)
+        export_cv_pdf_bytes(d, allow_unverified=True)

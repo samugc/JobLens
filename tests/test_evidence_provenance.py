@@ -154,8 +154,7 @@ def test_export_rejects_unhandled_unknown_fact_ids_without_support():
 
 def test_export_accepts_explicitly_unverified_rendering_input():
     draft = _minimal_draft()
-    draft["evidence_mode"] = "unverified"
-    assert export_cv_pdf_bytes(draft)[:4] == b"%PDF"
+    assert export_cv_pdf_bytes(draft, allow_unverified=True)[:4] == b"%PDF"
 
 
 def test_export_rejects_another_items_attestation():

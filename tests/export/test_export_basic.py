@@ -15,14 +15,14 @@ from .test_helpers import docx_text, make_draft, pdf_text
 
 def test_pdf_bytes_valid():
     draft = make_draft()
-    data = export_cv_pdf_bytes(draft)
+    data = export_cv_pdf_bytes(draft, allow_unverified=True)
     assert data[:4] == b"%PDF"
     assert len(data) > 1000
 
 
 def test_docx_bytes_valid_zip():
     draft = make_draft()
-    data = export_cv_docx_bytes(draft)
+    data = export_cv_docx_bytes(draft, allow_unverified=True)
     assert data[:2] == b"PK"
     z = zipfile.ZipFile(io.BytesIO(data))
     assert z.testzip() is None
@@ -33,7 +33,7 @@ def test_docx_bytes_valid_zip():
 def test_pdf_file_created(tmp_path):
     draft = make_draft()
     dest = tmp_path / "out.pdf"
-    export_cv_pdf(draft, dest)
+    export_cv_pdf(draft, dest, allow_unverified=True)
     assert dest.exists()
     assert dest.read_bytes()[:4] == b"%PDF"
 
@@ -41,14 +41,14 @@ def test_pdf_file_created(tmp_path):
 def test_docx_file_created(tmp_path):
     draft = make_draft()
     dest = tmp_path / "out.docx"
-    export_cv_docx(draft, dest)
+    export_cv_docx(draft, dest, allow_unverified=True)
     assert dest.exists()
     assert dest.read_bytes()[:2] == b"PK"
 
 
 def test_pdf_destination_directory(tmp_path):
     draft = make_draft()
-    result = export_cv_pdf(draft, tmp_path)
+    result = export_cv_pdf(draft, tmp_path, allow_unverified=True)
     assert result.exists()
     assert result.suffix == ".pdf"
 
@@ -56,15 +56,15 @@ def test_pdf_destination_directory(tmp_path):
 def test_byte_functions_do_not_persist(tmp_path):
     # no files created beyond explicit
     before = set(tmp_path.iterdir())
-    export_cv_pdf_bytes(make_draft())
-    export_cv_docx_bytes(make_draft())
+    export_cv_pdf_bytes(make_draft(), allow_unverified=True)
+    export_cv_docx_bytes(make_draft(), allow_unverified=True)
     after = set(tmp_path.iterdir())
     assert before == after
 
 
 def test_section_order_preserved():
     draft = make_draft()
-    data = export_cv_pdf_bytes(draft)
+    data = export_cv_pdf_bytes(draft, allow_unverified=True)
     text = pdf_text(data)
     # section titles appear in order
     idx_summary = text.find("Professional Summary")
@@ -76,8 +76,8 @@ def test_section_order_preserved():
 
 def test_factual_content_equivalent():
     draft = make_draft()
-    pdf = pdf_text(export_cv_pdf_bytes(draft))
-    docx = docx_text(export_cv_docx_bytes(draft))
+    pdf = pdf_text(export_cv_pdf_bytes(draft, allow_unverified=True))
+    docx = docx_text(export_cv_docx_bytes(draft, allow_unverified=True))
     for needle in ["Jane Example", "jane@example.com", "Python", "SQL", "Data Engineer", "Acme", "2020 - 2023", "Madrid"]:
         assert needle in pdf, f"pdf missing {needle}"
         assert needle in docx, f"docx missing {needle}"
@@ -87,7 +87,7 @@ def test_pdf_one_page_for_short():
     import io
 
     from pypdf import PdfReader
-    data = export_cv_pdf_bytes(make_draft())
+    data = export_cv_pdf_bytes(make_draft(), allow_unverified=True)
     r = PdfReader(io.BytesIO(data))
     assert len(r.pages) == 1
 
@@ -97,7 +97,7 @@ def test_docx_a4_and_candidate_metadata():
     from docx.shared import Cm
 
     draft = make_draft()
-    doc = Document(io.BytesIO(export_cv_docx_bytes(draft)))
+    doc = Document(io.BytesIO(export_cv_docx_bytes(draft, allow_unverified=True)))
     for section in doc.sections:
         assert abs(section.page_width - Cm(21)) < 635
         assert abs(section.page_height - Cm(29.7)) < 635

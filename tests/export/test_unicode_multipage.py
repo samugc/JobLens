@@ -43,8 +43,8 @@ def _long_draft():
 
 def test_unicode_content():
     d = _long_draft()
-    pdf = export_cv_pdf_bytes(d)
-    docx = export_cv_docx_bytes(d)
+    pdf = export_cv_pdf_bytes(d, allow_unverified=True)
+    docx = export_cv_docx_bytes(d, allow_unverified=True)
     pt = pdf_text(pdf)
     dt = docx_text(docx)
     assert "José García-Müller" in pt or "Jose" in pt  # font may normalize? check bytes decode
@@ -55,14 +55,14 @@ def test_unicode_content():
 
 def test_multiple_pages():
     d = _long_draft()
-    data = export_cv_pdf_bytes(d)
+    data = export_cv_pdf_bytes(d, allow_unverified=True)
     r = PdfReader(io.BytesIO(data))
     assert len(r.pages) >= 2
 
 
 def test_no_blank_pages():
     d = _long_draft()
-    data = export_cv_pdf_bytes(d)
+    data = export_cv_pdf_bytes(d, allow_unverified=True)
     r = PdfReader(io.BytesIO(data))
     for i, p in enumerate(r.pages):
         txt = (p.extract_text() or "").strip()
@@ -72,7 +72,7 @@ def test_no_blank_pages():
 def test_a4_and_letter():
     d = _long_draft()
     for ps in ("A4", "LETTER"):
-        data = export_cv_pdf_bytes(d, page_size=ps)
+        data = export_cv_pdf_bytes(d, page_size=ps, allow_unverified=True)
         r = PdfReader(io.BytesIO(data))
         assert len(r.pages) >= 1
         # page size check
@@ -87,7 +87,7 @@ def test_a4_and_letter():
 
 def test_clickable_links_present():
     d = make_draft()
-    data = export_cv_pdf_bytes(d)
+    data = export_cv_pdf_bytes(d, allow_unverified=True)
     # pypdf can extract annotations? check /Annots
     r = PdfReader(io.BytesIO(data))
     page = r.pages[0]
@@ -100,7 +100,7 @@ def test_clickable_links_present():
 def test_docx_paragraph_content():
     import docx
     d = make_draft()
-    data = export_cv_docx_bytes(d)
+    data = export_cv_docx_bytes(d, allow_unverified=True)
     doc = docx.Document(io.BytesIO(data))
     texts = [p.text for p in doc.paragraphs]
     joined = "\n".join(texts)
