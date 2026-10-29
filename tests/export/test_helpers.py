@@ -8,6 +8,9 @@ import io
 def make_draft(**overrides):
     base = {
         "cv_draft_version": "0.1",
+        # These fixtures exercise rendering, not provenance. Declaring the mode
+        # explicitly keeps the export evidence contract closed by default.
+        "evidence_mode": "unverified",
         "target_job": {"title": "AI Engineer", "company": "Acme"},
         "candidate": {
             "full_name": "Jane Example",

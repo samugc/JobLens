@@ -203,6 +203,15 @@ def _convert_item(raw: Any, index: int) -> CanonicalItem:
         if fid is None:
             continue
         fact_ids.append(str(fid))
+    # Provenance: how the wording was authorised. Absent means unaltered
+    # generated text. Attestation citations imply candidate-attested wording.
+    provenance = raw.get("provenance", None)
+    if provenance is None:
+        provenance = "attested" if any(
+            fid.startswith("attestation:") for fid in fact_ids
+        ) else "source"
+    if provenance not in ("source", "stale", "attested"):
+        raise InvalidDraftError(f"items[{index}].provenance is not a known value")
     # Optional fields.
     heading = raw.get("heading")
     subheading = raw.get("subheading")
@@ -235,6 +244,7 @@ def _convert_item(raw: Any, index: int) -> CanonicalItem:
         "subheading",
         "period",
         "location",
+        "provenance",
     }
     extra = {k: v for k, v in raw.items() if k not in known}
     return CanonicalItem(
@@ -246,6 +256,7 @@ def _convert_item(raw: Any, index: int) -> CanonicalItem:
         subheading=subheading,
         period=period,
         location=location,
+        provenance=provenance,
         extra=extra,
     )
 
@@ -319,6 +330,14 @@ def adapt_draft(draft: Any) -> CanonicalDraft:
     warnings = _to_str_tuple(payload.get("warnings", []), "warnings")
     unmet = _to_str_tuple(payload.get("unmet_requirements", []), "unmet_requirements")
 
+    evidence_mode = payload.get("evidence_mode", "cited_facts")
+    if evidence_mode is None:
+        evidence_mode = "cited_facts"
+    if evidence_mode not in ("cited_facts", "unverified"):
+        raise InvalidDraftError(
+            "evidence_mode must be 'cited_facts' or 'unverified'"
+        )
+
     return CanonicalDraft(
         cv_draft_version=version,
         target_job=target_job,
@@ -326,6 +345,7 @@ def adapt_draft(draft: Any) -> CanonicalDraft:
         sections=sections,
         warnings=warnings,
         unmet_requirements=unmet,
+        evidence_mode=evidence_mode,
         raw=draft,
     )
 
@@ -335,7 +355,15 @@ def validate_export(
     *,
     evidence_support: Any = None,
 ) -> None:
-    """Raise on any blocking condition. Returns None if export is allowed."""
+    """Raise on any blocking condition. Returns None if export is allowed.
+
+    ``evidence_support`` is the set of approved fact ids that may be cited. When
+    it is omitted the draft is only renderable if it declares
+    ``evidence_mode="unverified"``; otherwise there is no way to tell a real
+    approved fact from an invented identifier, so export fails closed. Passing
+    support checks identifier membership only: it does not prove that an item's
+    wording is entailed by the facts it cites.
+    """
     # Candidate contact.
     if not draft.candidate.full_name or not draft.candidate.full_name.strip():
         raise ContactError("candidate full name is missing")
@@ -354,18 +382,63 @@ def validate_export(
             f"item(s) without supporting approved facts: {', '.join(missing_facts)}"
         )
 
+    for item in items:
+        _validate_item_citations(item)
+
     # Evidence-support contract validation.
-    if evidence_support is not None:
-        fact_ids = _extract_fact_ids(evidence_support)
-        if fact_ids is None:
-            raise EvidenceContractError("invalid evidence-support contract")
-        # Cross-check: every item fact id must be present in the contract.
-        all_item_ids = {fid for item in items for fid in item.approved_fact_ids}
-        unknown = sorted(all_item_ids - fact_ids)
-        if unknown:
+    if evidence_support is None:
+        if draft.evidence_mode != "unverified":
             raise EvidenceContractError(
-                f"item(s) reference unknown approved facts: {', '.join(unknown)}"
+                "cannot verify cited fact ids without evidence support; pass "
+                "evidence_support or declare the draft as unverified rendering "
+                "input"
             )
+        return
+    fact_ids = _extract_fact_ids(evidence_support)
+    if fact_ids is None:
+        raise EvidenceContractError("invalid evidence-support contract")
+    # Cross-check: every item fact id must be present in the contract.
+    all_item_ids = {fid for item in items for fid in item.approved_fact_ids}
+    unknown = sorted(all_item_ids - fact_ids)
+    if unknown:
+        raise EvidenceContractError(
+            f"item(s) reference unknown approved facts: {', '.join(unknown)}"
+        )
+
+
+def _validate_item_citations(item: CanonicalItem) -> None:
+    """Reject stale wording and citations that cannot mean what they claim.
+
+    Three failure modes are detected: an empty id, a duplicated id (which
+    silently inflates a citation list), and an ``attestation:`` id that does not
+    name the item carrying it. Candidate attestation must stay distinguishable
+    from approved-fact support, so an item may not mix the two.
+    """
+    ids = item.approved_fact_ids
+    if any(not fid.strip() for fid in ids):
+        raise EvidenceContractError(f"item {item.item_id} has an empty fact id")
+    if len(set(ids)) != len(ids):
+        raise EvidenceContractError(f"item {item.item_id} repeats a fact id")
+    attested = [fid for fid in ids if fid.startswith("attestation:")]
+    if attested:
+        expected = "attestation:" + item.item_id
+        if len(attested) != len(ids):
+            raise EvidenceContractError(
+                f"item {item.item_id} mixes attestation and approved-fact citations"
+            )
+        if any(fid != expected for fid in attested):
+            raise EvidenceContractError(
+                f"item {item.item_id} carries another item's attestation"
+            )
+    elif item.provenance == "attested":
+        raise EvidenceContractError(
+            f"item {item.item_id} is attested but cites no attestation id"
+        )
+    if item.provenance == "stale":
+        raise EvidenceContractError(
+            f"item {item.item_id} has wording that changed after generation and "
+            "was not re-attested"
+        )
 
 
 def _extract_fact_ids(value: Any) -> set[str] | None:

@@ -36,6 +36,7 @@ class CanonicalItem:
     subheading: str | None = None
     period: str | None = None
     location: str | None = None
+    provenance: str = "source"
     extra: dict[str, Any] = field(default_factory=dict)
 
 
@@ -56,6 +57,7 @@ class CanonicalDraft:
     sections: tuple[CanonicalSection, ...]
     warnings: tuple[str, ...] = ()
     unmet_requirements: tuple[str, ...] = ()
+    evidence_mode: str = "cited_facts"
     raw: Any = None
 
 

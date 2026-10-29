@@ -59,8 +59,16 @@ def test_parser_draft_export():
         for item in section.items:
             draft = approve_cv_item(draft, item.item_id)
     assert can_export(draft) is True or True
-    pdf = export_cv_pdf_bytes(draft)
-    docx = export_cv_docx_bytes(draft)
+    support = {
+        "facts": [
+            {"fact_id": fid}
+            for section in draft.sections
+            for item in section.items
+            for fid in item.approved_fact_ids
+        ]
+    }
+    pdf = export_cv_pdf_bytes(draft, evidence_support=support)
+    docx = export_cv_docx_bytes(draft, evidence_support=support)
     assert pdf[:4] == b"%PDF"
     ptext = pdf_text(pdf)
     dtext = docx_text(docx)

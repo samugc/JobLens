@@ -34,6 +34,23 @@ CV_DRAFT_VERSION = "0.1"
 NEEDS_REVIEW = "needs_review"
 APPROVED = "approved"
 
+#: Provenance of an item's wording.
+#:
+#: ``source`` means the wording is the unaltered generated text, which was built
+#: only from the cited approved facts. ``stale`` means the wording was changed
+#: after generation (by an edit or an optional rewrite), so the cited fact ids no
+#: longer describe it; it cannot be approved until the candidate attests to it.
+#: ``attested`` means the candidate explicitly vouched for wording that is not
+#: independently supported; its citation is ``attestation:<item_id>``, never a
+#: real fact id, so the two kinds of support stay distinguishable.
+PROVENANCE_SOURCE = "source"
+PROVENANCE_STALE = "stale"
+PROVENANCE_ATTESTED = "attested"
+PROVENANCE_STATES = (PROVENANCE_SOURCE, PROVENANCE_STALE, PROVENANCE_ATTESTED)
+
+#: Citation prefix used for candidate-attested wording.
+ATTESTATION_PREFIX = "attestation:"
+
 #: Ollama endpoint used only by the optional adapter.
 OLLAMA_URL = "http://127.0.0.1:11434/api/generate"
 OLLAMA_MODEL = "llama3.2"
@@ -50,6 +67,7 @@ class CvDraftItem:
     subheading: str | None = None
     period: str | None = None
     location: str | None = None
+    provenance: str = PROVENANCE_SOURCE
 
     def as_dict(self) -> dict[str, Any]:
         payload = {
@@ -58,6 +76,10 @@ class CvDraftItem:
             "approved_fact_ids": list(self.approved_fact_ids),
             "review_status": self.review_status,
         }
+        # Only emitted when the wording is not the unaltered generated text, so
+        # existing draft JSON keeps its shape.
+        if self.provenance != PROVENANCE_SOURCE:
+            payload["provenance"] = self.provenance
         if self.heading is not None:
             payload["heading"] = self.heading
         if self.subheading is not None:
@@ -146,6 +168,9 @@ class CvDraft:
                 status = raw.get("review_status", NEEDS_REVIEW)
                 if status not in (NEEDS_REVIEW, APPROVED):
                     raise ValueError("invalid review_status")
+                provenance = raw.get("provenance", PROVENANCE_SOURCE)
+                if provenance not in PROVENANCE_STATES:
+                    raise ValueError("invalid provenance")
                 fact_ids = raw.get("approved_fact_ids", [])
                 if not isinstance(fact_ids, Sequence) or isinstance(fact_ids, (str, bytes)):
                     raise ValueError("approved_fact_ids must be an array")
@@ -159,6 +184,7 @@ class CvDraft:
                         subheading=raw.get("subheading"),
                         period=raw.get("period"),
                         location=raw.get("location"),
+                        provenance=provenance,
                     )
                 )
             sections.append(
@@ -649,6 +675,11 @@ def generate_cv_draft(
                     text=rewritten,
                     approved_fact_ids=item.approved_fact_ids,
                     review_status=NEEDS_REVIEW,
+                    # A model rewrite is not independently supported. Keeping the
+                    # original ids would imply an entailment that was never
+                    # checked, so the wording is marked stale and must be
+                    # attested by the candidate before it can be approved.
+                    provenance=PROVENANCE_STALE,
                 )
                 sections = [
                     CvDraftSection(
@@ -678,7 +709,14 @@ def generate_cv_draft(
 def _ollama_rewrite_summary(
     text: str, fact_ids: Sequence[str], profile: ApprovedProfile
 ) -> str | None:
-    """Optional local-only rewrite. Returns None on any failure (fallback)."""
+    """Optional local-only rewrite. Returns None on any failure (fallback).
+
+    The token check below only rejects words that appear in no approved fact. It
+    is a vocabulary filter, not an entailment check: it can still let a model
+    move a number or a qualifier from one fact onto another. Callers must treat
+    accepted output as unattested wording, which is why the generated item is
+    marked stale and requires candidate attestation before approval.
+    """
     fact_values = []
     for fact in profile.facts:
         if fact.fact_id in fact_ids:
@@ -723,7 +761,13 @@ def _ollama_rewrite_summary(
 
 
 def edit_cv_item(draft: CvDraft, item_id: str, new_text: str) -> CvDraft:
-    """Edit an item's text and revoke its approval."""
+    """Edit an item's text and revoke its approval.
+
+    The edit also marks the item's provenance as stale: the previous wording was
+    supported by the cited facts, but the new wording has not been checked
+    against them. Stale items can only be approved with explicit candidate
+    attestation, which replaces the fact ids with an ``attestation:`` citation.
+    """
     new_sections: list[CvDraftSection] = []
     found = False
     for section in draft.sections:
@@ -741,6 +785,7 @@ def edit_cv_item(draft: CvDraft, item_id: str, new_text: str) -> CvDraft:
                         subheading=item.subheading,
                         period=item.period,
                         location=item.location,
+                        provenance=PROVENANCE_STALE,
                     )
                 )
             else:
@@ -767,8 +812,15 @@ def edit_cv_item(draft: CvDraft, item_id: str, new_text: str) -> CvDraft:
     )
 
 
-def approve_cv_item(draft: CvDraft, item_id: str) -> CvDraft:
-    """Explicitly approve one item. Only an explicit call does this."""
+def approve_cv_item(draft: CvDraft, item_id: str, *, attest: bool = False) -> CvDraft:
+    """Explicitly approve one item. Only an explicit call does this.
+
+    ``attest`` is required for items whose wording changed after generation
+    (``provenance == "stale"``). Attesting rewrites the citation to
+    ``attestation:<item_id>`` so the export never presents candidate-vouched
+    wording as if approved facts supported it. Unedited wording keeps its fact
+    ids and remains approval-compatible with existing callers.
+    """
     new_sections: list[CvDraftSection] = []
     found = False
     for section in draft.sections:
@@ -776,18 +828,33 @@ def approve_cv_item(draft: CvDraft, item_id: str) -> CvDraft:
         for item in section.items:
             if item.item_id == item_id:
                 found = True
-                if not item.approved_fact_ids:
-                    raise ValueError("an item without approved facts cannot be approved")
+                if item.provenance == PROVENANCE_STALE:
+                    if not attest:
+                        raise ValueError(
+                            "edited or rewritten wording needs explicit candidate "
+                            "attestation before it can be approved"
+                        )
+                    fact_ids = (ATTESTATION_PREFIX + item.item_id,)
+                    provenance = PROVENANCE_ATTESTED
+                elif item.provenance == PROVENANCE_ATTESTED:
+                    fact_ids = item.approved_fact_ids
+                    provenance = PROVENANCE_ATTESTED
+                else:
+                    if not item.approved_fact_ids:
+                        raise ValueError("an item without approved facts cannot be approved")
+                    fact_ids = item.approved_fact_ids
+                    provenance = PROVENANCE_SOURCE
                 new_items.append(
                     CvDraftItem(
                         item_id=item.item_id,
                         text=item.text,
-                        approved_fact_ids=item.approved_fact_ids,
+                        approved_fact_ids=fact_ids,
                         review_status=APPROVED,
                         heading=item.heading,
                         subheading=item.subheading,
                         period=item.period,
                         location=item.location,
+                        provenance=provenance,
                     )
                 )
             else:
@@ -847,6 +914,12 @@ def validate_export_eligibility(draft: CvDraft) -> list[str]:
     for item in items:
         if not item.approved_fact_ids:
             reasons.append(f"item {item.item_id} has no supporting approved facts")
+    stale = [item.item_id for item in items if item.provenance == PROVENANCE_STALE]
+    if stale:
+        reasons.append(
+            f"{len(stale)} item(s) have wording that changed after generation and "
+            "needs candidate attestation"
+        )
     if not draft.candidate.full_name:
         reasons.append("candidate full name is missing")
     return reasons
@@ -858,11 +931,15 @@ def can_export(draft: CvDraft) -> bool:
 
 __all__ = [
     "APPROVED",
+    "ATTESTATION_PREFIX",
     "CV_DRAFT_VERSION",
     "CvDraft",
     "CvDraftItem",
     "CvDraftSection",
     "NEEDS_REVIEW",
+    "PROVENANCE_ATTESTED",
+    "PROVENANCE_SOURCE",
+    "PROVENANCE_STALE",
     "TargetJob",
     "approve_cv_item",
     "can_export",
