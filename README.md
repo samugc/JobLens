@@ -142,3 +142,9 @@ problem, preserve provenance and confirmation checks, and never include personal
 CVs or credentials. Run the checks above before proposing changes.
 
 [MIT license](LICENSE). Dependencies retain their own licenses.
+
+## Links
+
+- Portfolio: https://samuel-garcia.pages.dev/
+- LinkedIn: https://www.linkedin.com/in/jesussamuelgarciacarballo/
+- GitHub profile: https://github.com/samugc
